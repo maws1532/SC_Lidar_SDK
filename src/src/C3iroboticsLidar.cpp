@@ -11,13 +11,20 @@ History:
 	Author:
 	Modification:
 ***********************************************************************************/
-
+#define DEBUG
 /********************************* File includes **********************************/
 #include "C3iroboticsLidar.h"
 
 /******************************* Current libs includes ****************************/
 #include <iostream>
-
+#include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
+//#include <sys/io.h>
 /********************************** Name space ************************************/
 using namespace everest;
 using namespace everest::hwdrivers;
@@ -36,8 +43,14 @@ C3iroboticsLidar::C3iroboticsLidar()
     m_data_with_signal = true;
     m_receive_lidar_speed = false;
     m_current_lidar_speed = -1.0;
-
     resetScanGrab();
+    //调整速度相关变量
+    error = 0.0;
+    last_error = 0;
+    error_sum = 0.0;
+    percent = 0;
+    speedStableFlag = false;
+    countSpeed = 0;
 }
 
 /***********************************************************************************
@@ -101,6 +114,7 @@ TLidarGrabResult C3iroboticsLidar::getScanData()
                 grab_result = analysisPacket(m_packet);
             else
                 grab_result = LIDAR_GRAB_ERRO;
+                
             
             break;
         }
@@ -400,3 +414,125 @@ void C3iroboticsLidar::resetScanGrab()
     m_remainder_flag = false;;
 }
 
+
+
+
+/***********************************************************************************
+Function:     adbWrite
+Description:  adb Write
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::adbWriteData(const char *file_name, int64_t data)
+{
+    int fp = 0;
+    char pbuf[20] = "0";
+
+    sprintf(pbuf, "%d", data);
+    fp = open(file_name, O_WRONLY);
+    int fd = write(fp, pbuf, strlen(pbuf));
+    close(fp);
+}
+
+
+/***********************************************************************************
+Function:     adbWrite
+Description:  adb Write
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::adbWriteData(const char *file_name, const char *data)
+{
+    int fp = 0;
+    fp = open(file_name, O_WRONLY);
+    int fd = write(fp, data, strlen(data));
+    close(fp);
+}
+
+/***********************************************************************************
+Function:     adbInit
+Description:  adb Init
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::adbInit()
+{
+   const char *prefile = "/sys/class/pwm/pwmchip0/pwm0";
+   if(access(prefile, 0) == -1)
+   {
+       adbWriteData("/sys/class/pwm/pwmchip0/export", (int64_t)0);
+       usleep(20);
+   }
+    
+    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/period", 20000000);
+    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", 15000000);
+    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/polarity", "inversed");//normal  inversed
+    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/enable", 1);
+}
+
+
+/***********************************************************************************
+Function:     controlLidarPWM
+Description:  Control Lidar PWM
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::controlLidarPWM(int8_t percent)
+{
+    uint32_t duty_cycle = 0;
+
+    if((percent < 0)||(percent > 100))
+    {
+        percent = 40;
+    }
+    percent = percent % 100;
+
+    duty_cycle = percent * 20000000 / 100;
+    
+    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", duty_cycle);
+}
+
+
+/***********************************************************************************
+Function:     controlLidarSpeed
+Description:  control Lidar Speed
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::controlLidarSpeed()
+{
+
+    double currentSpeed = getLidarCurrentSpeed();
+
+    
+    double speed = currentSpeed;
+    last_error = error;   
+    error = 6.0 - speed;           
+    error_sum += error;          
+    if(error_sum > 20)
+    {
+        error_sum = 20;
+    }
+    else if(error_sum < -20)
+    {
+        error_sum = -20;
+    }
+    if(error < 1 && error > -1)
+        percent = 40 + error_sum*1.0 + 0.1*error + 0.5*(error - last_error);
+    else
+        percent = 40 + error_sum*1.0 + 5*error + 5*(error - last_error);
+
+    controlLidarPWM(percent);
+
+    
+}

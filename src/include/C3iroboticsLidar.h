@@ -25,6 +25,7 @@ History:
 /******************************* System libs includes *****************************/
 #include <vector>
 
+
 /******************************* Other libs includes ******************************/
 
 namespace everest
@@ -112,6 +113,18 @@ namespace everest
                 /* Enable log when receive timer overs */
                 void enableLogWhenReceiveTimeOvers(bool state) {m_receiver.enableLogWhenReceiveTimeOvers(state);}
 
+                /* adb Write */
+                void adbWriteData(const char *file_name, int64_t data);
+
+                /* adb Write */
+                void adbWriteData(const char *file_name, const char *data);
+
+                /* adb Init */
+                void adbInit();
+
+                /* Control Lidar Speed */
+                void controlLidarSpeed();
+
             private:
                 /* Analysis packet */
                 TLidarGrabResult analysisPacket(CLidarPacket &lidar_packet);
@@ -143,6 +156,9 @@ namespace everest
                 /* Change tooth scan to lidar scan */
                 void toothScan2LidarScan(TToothScan &tooth_scan, TLidarScan &lidar_scan);
 
+                /* Control Lidar PWM */
+                void controlLidarPWM(int8_t percent);//yuy
+
                 /* Params */
                 struct TParams
                 {
@@ -160,6 +176,7 @@ namespace everest
                 };
             public:
                 TLidarScan              m_lidar_scan;
+
             private:
                 CDeviceConnection       *m_device_connect;
                 CLidarPacketReceiver    m_receiver;
@@ -178,6 +195,13 @@ namespace everest
                 double                  m_current_lidar_speed;
 
                 CCountDown              m_data_count_down;
+                //调整速度相关变量 
+                double  error;
+                double  last_error;
+                double  error_sum;
+                int8_t percent;
+                bool    speedStableFlag;
+                uint8_t countSpeed;
 		};
 	}
 }

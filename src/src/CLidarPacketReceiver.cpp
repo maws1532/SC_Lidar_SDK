@@ -88,6 +88,7 @@ bool CLidarPacketReceiver::receivePacket(CLidarPacket *packet)
             {
                 printf("[CLidarPacketReceiver] Receive packet time is over!\n");
             }
+            TPacketResult packet_result = readPacket(packet, ch);
 			return false;
 		}
 

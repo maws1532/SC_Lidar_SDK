@@ -14,8 +14,14 @@
 #include "CSerialConnection.h"
 #include <unistd.h>
 #include <time.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
 
 
+#define DEBUG_MAIN
 
 #define DEG2RAD(x) ((x)*M_PI/180.)
 
@@ -40,10 +46,15 @@ using namespace everest::hwdrivers;
 int main(int argc, char * argv[])
 {
 	int    opt_com_baudrate = 115200;//230400;
-    string opt_com_path = "/dev/ttyUSB0";
+    string opt_com_path = "/dev/ttyS5";
+    pthread_t controlSpeedID;
+
 
     CSerialConnection serial_connect;
     C3iroboticsLidar robotics_lidar;
+
+    robotics_lidar.adbInit();       //adb init
+
 
     serial_connect.setBaud(opt_com_baudrate);
     serial_connect.setPort(opt_com_path.c_str());
@@ -62,11 +73,14 @@ int main(int argc, char * argv[])
 
     robotics_lidar.initilize(&serial_connect);
 
+    //pthread_create(&controlSpeedID, NULL, robotics_lidar.controlLidarSpeed(), NULL);
+
     while (1)
     {
         //usleep(100000);
-		TLidarGrabResult result = robotics_lidar.getScanData(); 
-        
+		TLidarGrabResult result = robotics_lidar.getScanData();
+        robotics_lidar.controlLidarSpeed();
+
         switch(result)
         {
             case LIDAR_GRAB_ING:
