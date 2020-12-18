@@ -29,13 +29,14 @@ namespace everest
 	{
 	    struct TToothScan
 	    {
-            TToothScan() : offset_valid(false), offset_angle(0.0), lidar_speed(-1.0), angle(0.0), angleEnd(0.0), distance(), signal(){ }
+            TToothScan() : offset_valid(false), Shield_count(0), offset_angle(0.0), lidar_speed(-1.0), angle(0.0), angleEnd(0.0), distance(), signal(){ }
 
             float getAngle() 	{ return angle; }
 	        float getAngleEnd() { return angleEnd; }
             size_t getSize() 	{ return distance.size(); }
 
             bool                  offset_valid;
+            int                  Shield_count;
             float                 offset_angle;     // unit: degree
             float                 lidar_speed;      // unit: lidar speed
             float                 angle;            // unit: degree start
@@ -72,6 +73,8 @@ namespace everest
 
                 /* Lidar speed */
                 static int unpacketLidarSpeed(CLidarPacket &packet);
+                /* Lidar Information */
+                static u8 *unpacketLidarInformation(CLidarPacket &packet);
 		};
 	}
 }

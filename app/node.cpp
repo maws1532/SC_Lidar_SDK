@@ -25,7 +25,6 @@
 
 #define DEG2RAD(x) ((x)*M_PI/180.)
 
-
 typedef struct _rslidar_data
 {
     _rslidar_data()
@@ -45,10 +44,11 @@ using namespace everest::hwdrivers;
 
 int main(int argc, char * argv[])
 {
+    int count = 0;
 	int    opt_com_baudrate = 115200;//230400;
     string opt_com_path = "/dev/ttyS5";
     pthread_t controlSpeedID;
-
+    std::string str = "LDS";
 
     CSerialConnection serial_connect;
     C3iroboticsLidar robotics_lidar;
@@ -73,13 +73,15 @@ int main(int argc, char * argv[])
 
     robotics_lidar.initilize(&serial_connect);
 
-    //pthread_create(&controlSpeedID, NULL, robotics_lidar.controlLidarSpeed(), NULL);
-
+  
     while (1)
     {
         //usleep(100000);
 		TLidarGrabResult result = robotics_lidar.getScanData();
-        robotics_lidar.controlLidarSpeed();
+        
+        std::string str_Sn = robotics_lidar.pProInfopBuf;
+        if(str_Sn.npos != str_Sn.find(str))
+            robotics_lidar.controlLidarSpeed();
 
         switch(result)
         {
@@ -102,7 +104,7 @@ int main(int argc, char * argv[])
                         send_lidar_scan_data_part[i] = one_lidar_data;
                     }
                     
-                    printf("[Main] Lidar count = %3d, start angle = %6.2f, current speed = %5.2lf r/s \n", (int)lidar_scan_size, lidar_scan.angle[0], robotics_lidar.getLidarCurrentSpeed());
+                    //printf("[Main] Lidar count = %3d, start angle = %6.2f, current speed = %5.2lf r/s \n", (int)lidar_scan_size, lidar_scan.angle[0], robotics_lidar.getLidarCurrentSpeed());
                     robotics_lidar.m_lidar_scan.clear();
                 }
                 break;
@@ -110,6 +112,7 @@ int main(int argc, char * argv[])
             
             case LIDAR_GRAB_ERRO:
             {
+                
                 printf("[Main] Lidar error code = %d \n", robotics_lidar.getLidarError());
                 break;
             }

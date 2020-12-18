@@ -242,7 +242,11 @@ TToothScan CLidarUnpacket::unpacketNewLidarScanHasSingal(CLidarPacket &packet)
         distance = CLidarPacket::bufToUByte2((buffer+ head_ptr_offset) + 3*i + 1);
         tooth_scan.distance[i] = float(distance) / 4.0f / 1000.0f;
         tooth_scan.signal[i] = int(signal);
-//        printf("[CLidarUnpacket]sigal %d! distance %5.2f\n", tooth_scan.signal[i], tooth_scan.distance[i]);
+        if(distance > 0)
+        {
+            tooth_scan.Shield_count++;
+        }
+        //printf("[CLidarUnpacket]sigal %d! distance %5.2f\n", tooth_scan.signal[i], tooth_scan.distance[i]);
     }
     return tooth_scan;
 }
@@ -273,4 +277,18 @@ int CLidarUnpacket::unpacketLidarSpeed(CLidarPacket &packet)
 {
     int lidar_speed = *(packet.getParamPtr());
     return lidar_speed;
+}
+/***********************************************************************************
+Function:     unpacketLidarInformation
+Description:  Health info unpacket
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+u8 *CLidarUnpacket::unpacketLidarInformation(CLidarPacket &packet)
+{
+    u8 *pTemp = packet.getParamPtr();
+
+    return pTemp;
 }

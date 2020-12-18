@@ -30,13 +30,11 @@ namespace everest
         enum TLidarError
         {
             LIDAR_ERROR_NONE = 0,
-            LIDAR_ERROR_CCD,
-            LIDAR_ERROR_CALIBRATION_PARAMS,
-            LIDAR_ERROR_LD_OPTICAL_POWER_PARAMS,
             LIDAR_ERROR_CRC,
             LIDAR_ERROR_LOST_SPEED,
             LIDAR_ERROR_TIME_OVER,
-            LIDAR_ERROR_UNKNOW
+            LIDAR_ERROR_SHIELD,
+            LIDAR_ERROR_UNKNOW,
         };
 
 	    class CLidarPacket

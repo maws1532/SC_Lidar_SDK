@@ -43,7 +43,12 @@ C3iroboticsLidar::C3iroboticsLidar()
     m_data_with_signal = true;
     m_receive_lidar_speed = false;
     m_current_lidar_speed = -1.0;
+    Expectspeed = 6.0;
     resetScanGrab();
+    Error_timeout.Shieldflag = FALSE;
+    Error_timeout.speedflag = FALSE;
+    m_Shield_count = 0;
+    Node_num = 0;
     //调整速度相关变量
     error = 0.0;
     last_error = 0;
@@ -51,6 +56,11 @@ C3iroboticsLidar::C3iroboticsLidar()
     percent = 0;
     speedStableFlag = false;
     countSpeed = 0;
+    memset(pProInfopBuf, 0, 128);
+    memset(SNCode, 0, 16);
+    memset(SoftwareV, 0, 16);
+    memset(HardwareV, 0, 16);
+    memset(Lidartype, 0, 8);
 }
 
 /***********************************************************************************
@@ -88,7 +98,49 @@ bool C3iroboticsLidar::initilize(CDeviceConnection *device_connect)
         return true;
     }
 }
+/***********************************************************************************
+Function:     ScanErrTimeOut
+Description:   Scan Error TimeOut
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+int C3iroboticsLidar::ScanErrTimeOut(CLidarPacket *packet)
+{
 
+    if(LIDAR_ERROR_TIME_OVER == packet->m_lidar_erro)
+        goto LOG;
+
+    if(Error_timeout.speedflag)
+    {
+        
+        if(m_speed_count_down.isEnd())
+        {
+            printf("Lidar speed lost\n");
+            m_speed_count_down.setTime((double)m_params.speed_time_out);
+            packet->m_lidar_erro = LIDAR_ERROR_LOST_SPEED;
+
+            return -1;
+        }
+    }
+    else if(Error_timeout.Shieldflag)
+    {
+        if(m_Shield_ocount_down.isEnd())
+        {
+            printf("Lidar shield\n");
+            m_Shield_ocount_down.setTime((double)m_params.Shield_time_out);
+            packet->m_lidar_erro = LIDAR_ERROR_SHIELD;
+            return -1;
+        }
+    }
+    else
+    {
+        //Nothing to do
+    }
+    LOG:
+       return 0;
+}
 /***********************************************************************************
 Function:     getScanData
 Description:   Get scan data
@@ -102,6 +154,8 @@ TLidarGrabResult C3iroboticsLidar::getScanData()
     TLidarGrabResult grab_result;
     while(1)
     {
+        
+
         if(m_remainder_flag)
         {
             printf("[C3iroboticsLidar] Handle remainer scan!\n");
@@ -114,10 +168,14 @@ TLidarGrabResult C3iroboticsLidar::getScanData()
                 grab_result = analysisPacket(m_packet);
             else
                 grab_result = LIDAR_GRAB_ERRO;
-                
-            
+
+            if(-1 == ScanErrTimeOut(&m_packet))
+            {
+                grab_result = LIDAR_GRAB_ERRO;
+            }
             break;
         }
+
     }
     return grab_result;
 }
@@ -178,6 +236,9 @@ Others:       None
 TLidarGrabResult C3iroboticsLidar::analysisNewToothScan(CLidarPacket &lidar_packet)
 {
     TToothScan tooth_scan;
+    if(Error_timeout.speedflag)
+        Error_timeout.speedflag = false;
+    
     if(m_data_with_signal)
     {
         tooth_scan = CLidarUnpacket::unpacketNewLidarScanHasSingal(lidar_packet);
@@ -189,6 +250,7 @@ TLidarGrabResult C3iroboticsLidar::analysisNewToothScan(CLidarPacket &lidar_pack
 
     m_current_lidar_speed = tooth_scan.lidar_speed;
     m_receive_lidar_speed = true;
+    m_Shield_count += tooth_scan.Shield_count;
 
     return combineScan(tooth_scan);
 }
@@ -203,7 +265,7 @@ Others:       None
 ***********************************************************************************/
 TLidarGrabResult C3iroboticsLidar::combineScan(TToothScan &tooth_scan)
 {
-//    printf("[C3iroboticsLidar] m_grab_scan_state %d, m_grab_scan_count %d!\n", m_grab_scan_state, m_grab_scan_count);
+    //printf("[C3iroboticsLidar] m_grab_scan_state %d, m_grab_scan_count %d!\n", m_grab_scan_state, m_grab_scan_count);
     switch(m_grab_scan_state)
     {
         case GRAB_SCAN_FIRST:
@@ -215,6 +277,17 @@ TLidarGrabResult C3iroboticsLidar::combineScan(TToothScan &tooth_scan)
             {
                 resetScanGrab();
                 grabFirstScan(tooth_scan);
+                int count = m_Shield_count;
+                m_Shield_count = 0;
+                if(count < 6)
+                {
+                    Error_timeout.Shieldflag = TRUE;
+                }
+                else
+                {
+                    Error_timeout.Shieldflag = FALSE;
+                }
+
             }
             else
             {
@@ -238,12 +311,13 @@ TLidarGrabResult C3iroboticsLidar::combineScan(TToothScan &tooth_scan)
             /* Handle angle suddenly reduces */
             if(tooth_scan.angle < m_last_scan_angle)
             {
-                printf("[C3iroboticsLidar] may receive next scan, current %5.2f, last %5.2f!\n",
+                printf("[C3iroboticsLidar] may receive next scan, current %5.2f, last %5.2f\n",
                           tooth_scan.angle, m_last_scan_angle);
                 if(isFirstScan(tooth_scan))
                 {
                     m_remainder_flag = true;
                     m_remainder_tooth_scan = tooth_scan;
+
                 }
                 return LIDAR_GRAB_SUCESS;
             }
@@ -387,14 +461,27 @@ Others:       None
 ***********************************************************************************/
 TLidarGrabResult C3iroboticsLidar::analysisLidarSpeed(CLidarPacket &lidar_packet)
 {
-    double lidar_erro_speed = CLidarUnpacket::unpacketLidarSpeed(lidar_packet) * 0.05f;
-    printf("[C3iroboticsLidar] Lidar error speed is %5.5f!\n", lidar_erro_speed);
+    std::string str = "LDS";
+    
+    char *pTemp = (char*)CLidarUnpacket::unpacketLidarInformation(lidar_packet);
+    if(NULL == pTemp)
+        return LIDAR_GRAB_ING;
+
+    double lidar_erro_speed = (*pTemp) * 0.05f;
+
+    if(!Error_timeout.speedflag)
+        Error_timeout.speedflag = true;
+    
+    pTemp++;
+    std::string str_Sn = pProInfopBuf;
+    if(str_Sn.npos == str_Sn.find(str)&&(NULL != pTemp))
+        strncpy(pProInfopBuf, pTemp, 56);
+        
 
     m_current_lidar_speed = lidar_erro_speed;
     m_receive_lidar_speed = true;
-    lidar_packet.m_lidar_erro = LIDAR_ERROR_LOST_SPEED;
 
-    return LIDAR_GRAB_ERRO;
+    return LIDAR_GRAB_ING;
 }
 
 /***********************************************************************************
@@ -419,7 +506,7 @@ void C3iroboticsLidar::resetScanGrab()
 
 /***********************************************************************************
 Function:     adbWrite
-Description:  adb Write
+Description:  adb Wripte
 Input:        None
 Output:       None
 Return:       None
@@ -463,20 +550,75 @@ Others:       None
 ***********************************************************************************/
 void C3iroboticsLidar::adbInit()
 {
-   const char *prefile = "/sys/class/pwm/pwmchip0/pwm0";
-   if(access(prefile, 0) == -1)
+    int num = GetDeviceNodeID();
+    std::string str = "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0";
+    std::string str_export = "/sys/class/pwm/pwmchip" + std::to_string(num) + "/export";
+    std::string str_period =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/period";
+    std::string str_duty_cycle =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/duty_cycle";
+    std::string str_polarity =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/polarity";
+    std::string str_enable =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
+   if(access(str.c_str(), 0) == -1)
    {
-       adbWriteData("/sys/class/pwm/pwmchip0/export", (int64_t)0);
+       adbWriteData(str_export.c_str(), (int64_t)0);
        usleep(20);
    }
-    
-    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/period", 20000000);
-    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", 15000000);
-    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/polarity", "inversed");//normal  inversed
-    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/enable", 1);
+    adbWriteData(str_period.c_str(), 20000000);
+    adbWriteData(str_duty_cycle.c_str(), 15000000);
+    adbWriteData(str_polarity.c_str(), "inversed");//normal 
+    adbWriteData(str_enable.c_str(), (int64_t)1);
 }
-
-
+/***********************************************************************************
+Function:     ControlLidarPause
+Description:  Control Lidar pause
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::ControlLidarPause()
+{
+    int num = GetDeviceNodeID();
+    std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
+    adbWriteData(str.c_str(), (int64_t)0);
+}
+/***********************************************************************************
+Function:     ControlLidarStart
+Description:  Control Lidar Start
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::ConnectLidarStart()
+{
+    int num = GetDeviceNodeID();
+    std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
+    adbWriteData(str.c_str(), (int64_t)1);
+}
+/***********************************************************************************
+Function:     SetDeviceNodeID
+Description:  set device node id
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::SetDeviceNodeID(u8 num)
+{
+    Node_num = num;
+}
+/***********************************************************************************
+Function:     GetDeviceNodeID
+Description:  get device node id
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+u8 C3iroboticsLidar::GetDeviceNodeID()
+{
+    return Node_num;
+}
 /***********************************************************************************
 Function:     controlLidarPWM
 Description:  Control Lidar PWM
@@ -488,6 +630,9 @@ Others:       None
 void C3iroboticsLidar::controlLidarPWM(int8_t percent)
 {
     uint32_t duty_cycle = 0;
+    int num = GetDeviceNodeID();
+
+    std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/duty_cycle";
 
     if((percent < 0)||(percent > 100))
     {
@@ -497,7 +642,7 @@ void C3iroboticsLidar::controlLidarPWM(int8_t percent)
 
     duty_cycle = percent * 20000000 / 100;
     
-    adbWriteData("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", duty_cycle);
+    adbWriteData(str.c_str(), duty_cycle);
 }
 
 
@@ -513,11 +658,11 @@ void C3iroboticsLidar::controlLidarSpeed()
 {
 
     double currentSpeed = getLidarCurrentSpeed();
-
+    double expectspeed = GetLidarExpectspeed();
     
     double speed = currentSpeed;
     last_error = error;   
-    error = 6.0 - speed;           
+    error = expectspeed - speed;           
     error_sum += error;          
     if(error_sum > 20)
     {
@@ -535,4 +680,107 @@ void C3iroboticsLidar::controlLidarSpeed()
     controlLidarPWM(percent);
 
     
+}
+/***********************************************************************************
+Function:     SetLidarExpectSpeed
+Description:  Set Lidar Expect Speed
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+int C3iroboticsLidar::SetLidarExpectSpeed(double speed)
+{
+    if((speed > 8.0)&&(speed < 4.0))
+        return -1;
+    else
+    {
+        Expectspeed = speed;
+    }
+    return 0;
+}
+/***********************************************************************************
+Function:     GetLidarSNCode
+Description:  get lidar SN code
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+u8 * C3iroboticsLidar::GetLidarSNCode()
+{
+
+    u8 pTmpbuf[32] = {0};
+    u8 *temp = pTmpbuf;
+    char *tmp = pProInfopBuf;
+
+    for(int i = 0;i < 24;i++)
+    {
+        char str = *tmp;
+        if(str < 0x41)
+            str = str - 0x30;
+        else
+            str = str - 65 + 10;
+        *temp = (u8)str;
+        tmp++;
+        temp++;
+    }
+   
+    for(int i = 0;i < 12; i++)
+    {
+        SNCode[i] = (pTmpbuf[2*i] << 4) + pTmpbuf[2*i+1];
+        printf("%02x ", SNCode[i]);
+    }
+    return SNCode;
+
+}
+/***********************************************************************************
+Function:     GetLidarSoftwareVersion
+Description:  get lidar SN code
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+char *C3iroboticsLidar::GetLidarSoftwareVersion()
+{
+    char *tmp = pProInfopBuf;
+    char * temp = SoftwareV;
+    tmp += 32;
+    strncpy(temp, tmp, 11);
+    
+    return SoftwareV;
+}
+/***********************************************************************************
+Function:     GetLidarHardwareVersion
+Description:  get lidar SN code
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+char *C3iroboticsLidar::GetLidarHardwareVersion()
+{
+    char *tmp = pProInfopBuf;
+    char * temp = HardwareV;
+    tmp += 44; 
+    strncpy(temp, tmp, 11);
+    
+    return HardwareV;
+}
+/***********************************************************************************
+Function:     GetLidarType
+Description:  get lidar SN code
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+char *C3iroboticsLidar::GetLidarType()
+{
+    char *tmp = pProInfopBuf;
+    char *temp = Lidartype;
+    tmp += 25;
+    strncpy(temp, tmp, 6);
+    return Lidartype;
 }

@@ -57,6 +57,11 @@ namespace everest
 	        std::vector<int>   signal;
 
 	    };
+        struct ErrorTimeOut
+        {
+            bool speedflag;
+            bool Shieldflag;
+        };
 
         enum TLidarGrabResult
         {
@@ -110,6 +115,9 @@ namespace everest
                 /* Get Lidar current speed */
                 double getLidarCurrentSpeed() {return m_current_lidar_speed;}
 
+                /*get Lidar expect speed*/
+                double GetLidarExpectspeed() {return Expectspeed;}
+
                 /* Enable log when receive timer overs */
                 void enableLogWhenReceiveTimeOvers(bool state) {m_receiver.enableLogWhenReceiveTimeOvers(state);}
 
@@ -124,6 +132,36 @@ namespace everest
 
                 /* Control Lidar Speed */
                 void controlLidarSpeed();
+                
+                /*Set Lidar Expect speed*/
+                int SetLidarExpectSpeed(double speed);
+
+                /*set scan error time*/
+                int ScanErrTimeOut(CLidarPacket *packet);
+
+                /*control Lidar Pause*/
+                void ControlLidarPause();
+
+                /*connect Liar Start*/
+                void ConnectLidarStart();
+
+                /*Set Device Node number*/
+                void SetDeviceNodeID(u8 num);
+
+                /*Get Device Node number*/
+                u8 GetDeviceNodeID();
+
+                /*Get Lidar SN code*/
+                u8 * GetLidarSNCode();
+
+                /*get lidar software version*/
+                char *GetLidarSoftwareVersion();
+
+                /*Get Lidar Hardware Version*/
+                char *GetLidarHardwareVersion();
+
+                /*Get Lidar Type*/
+                char *GetLidarType();
 
             private:
                 /* Analysis packet */
@@ -168,15 +206,24 @@ namespace everest
                         packet_wait_time_ms = 100;
                         tooth_number = 16;
                         scan_time_out_ms = 150;
+                        speed_time_out = 3500;
+                        Shield_time_out = 3500;
                     }
 
                     size_t packet_wait_time_ms;
                     size_t scan_time_out_ms;
+                    size_t speed_time_out;
+                    size_t Shield_time_out;
                     int tooth_number;
                 };
             public:
                 TLidarScan              m_lidar_scan;
-
+                ErrorTimeOut            Error_timeout;
+                char pProInfopBuf[128];
+                u8 SNCode[16];
+                char SoftwareV[16];
+                char HardwareV[16];
+                char Lidartype[8];
             private:
                 CDeviceConnection       *m_device_connect;
                 CLidarPacketReceiver    m_receiver;
@@ -185,6 +232,7 @@ namespace everest
                 //TLidarError             m_lidar_erro;
                 TGrabScanState          m_grab_scan_state;
                 int                     m_grab_scan_count;
+                int                     m_Shield_count;
                 float                   m_last_scan_angle;
                 CLidarPacket            m_packet;
                 TToothScan              m_remainder_tooth_scan;
@@ -193,8 +241,12 @@ namespace everest
 
                 bool                    m_receive_lidar_speed;
                 double                  m_current_lidar_speed;
+                double                  Expectspeed;
 
                 CCountDown              m_data_count_down;
+                CCountDown              m_speed_count_down;
+                CCountDown              m_stop_count_down;
+                CCountDown              m_Shield_ocount_down;
                 //调整速度相关变量 
                 double  error;
                 double  last_error;
@@ -202,6 +254,8 @@ namespace everest
                 int8_t percent;
                 bool    speedStableFlag;
                 uint8_t countSpeed;
+                u8 Node_num;
+
 		};
 	}
 }

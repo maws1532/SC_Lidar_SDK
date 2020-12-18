@@ -91,7 +91,7 @@ namespace everest
                     /* Constructor */
                     TParams()
                     {
-                        packet_max_time_ms = 1000;
+                        packet_max_time_ms = 3500;
                         packet_wait_time_ms = 100;
                     }
 
