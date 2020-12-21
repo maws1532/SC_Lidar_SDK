@@ -245,7 +245,6 @@ int CSimulateSerial::read(const char *data, unsigned int size, unsigned int msWa
     if(!m_fp)
     {
         printf("[CSimulateSerial] Finish read data!\n");
-        exit(0);
         return -1;
     }
 

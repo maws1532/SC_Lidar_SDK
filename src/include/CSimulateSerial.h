@@ -15,7 +15,7 @@ History:
 #define EVEREST_HWDRIVERS_CSIMULATESERIAL_H_
 
 /********************************** Current libs includes *************************/
-#include <CDeviceConnection.h>
+#include "CDeviceConnection.h"
 
 /********************************** System libs includes **************************/
 #include <string>

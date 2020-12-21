@@ -47,13 +47,11 @@ int main(int argc, char * argv[])
     int count = 0;
 	int    opt_com_baudrate = 115200;//230400;
     string opt_com_path = "/dev/ttyS5";
-    pthread_t controlSpeedID;
-    std::string str = "LDS";
 
     CSerialConnection serial_connect;
     C3iroboticsLidar robotics_lidar;
 
-    robotics_lidar.adbInit();       //adb init
+    robotics_lidar.PwmInit();       //adb init
 
 
     serial_connect.setBaud(opt_com_baudrate);
@@ -80,12 +78,15 @@ int main(int argc, char * argv[])
 		TLidarGrabResult result = robotics_lidar.getScanData();
         
         std::string str_Sn = robotics_lidar.pProInfopBuf;
-        if(str_Sn.npos != str_Sn.find(str))
+        if(str_Sn.npos != str_Sn.find(robotics_lidar.Lds_str))
             robotics_lidar.controlLidarSpeed();
 
         switch(result)
         {
             case LIDAR_GRAB_ING:
+            {
+                break;
+            }
             case LIDAR_GRAB_SUCESS:
             {
                 TLidarScan lidar_scan = robotics_lidar.getLidarScan();
@@ -113,7 +114,9 @@ int main(int argc, char * argv[])
             case LIDAR_GRAB_ERRO:
             {
                 
-                printf("[Main] Lidar error code = %d \n", robotics_lidar.getLidarError());
+                //printf("[Main] Lidar error code = %d \n", robotics_lidar.getLidarError());
+                robotics_lidar.GetLidarSNCode();
+                printf("lidar type:%s lidar SW:%s HW:%s\n", robotics_lidar.GetLidarType(), robotics_lidar.GetLidarSoftwareVersion(), robotics_lidar.GetLidarHardwareVersion());
                 break;
             }
             case LIDAR_GRAB_ELSE:

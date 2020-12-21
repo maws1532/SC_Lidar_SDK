@@ -49,6 +49,7 @@ C3iroboticsLidar::C3iroboticsLidar()
     Error_timeout.speedflag = FALSE;
     m_Shield_count = 0;
     Node_num = 0;
+    Lds_str = "LDS";
     //调整速度相关变量
     error = 0.0;
     last_error = 0;
@@ -461,7 +462,6 @@ Others:       None
 ***********************************************************************************/
 TLidarGrabResult C3iroboticsLidar::analysisLidarSpeed(CLidarPacket &lidar_packet)
 {
-    std::string str = "LDS";
     
     char *pTemp = (char*)CLidarUnpacket::unpacketLidarInformation(lidar_packet);
     if(NULL == pTemp)
@@ -474,7 +474,7 @@ TLidarGrabResult C3iroboticsLidar::analysisLidarSpeed(CLidarPacket &lidar_packet
     
     pTemp++;
     std::string str_Sn = pProInfopBuf;
-    if(str_Sn.npos == str_Sn.find(str)&&(NULL != pTemp))
+    if(str_Sn.npos == str_Sn.find(Lds_str)&&(NULL != pTemp))
         strncpy(pProInfopBuf, pTemp, 56);
         
 
@@ -512,7 +512,7 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-void C3iroboticsLidar::adbWriteData(const char *file_name, int64_t data)
+void C3iroboticsLidar::PwmWriteData(const char *file_name, int64_t data)
 {
     int fp = 0;
     char pbuf[20] = "0";
@@ -532,7 +532,7 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-void C3iroboticsLidar::adbWriteData(const char *file_name, const char *data)
+void C3iroboticsLidar::PwmWriteData(const char *file_name, const char *data)
 {
     int fp = 0;
     fp = open(file_name, O_WRONLY);
@@ -548,7 +548,7 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-void C3iroboticsLidar::adbInit()
+void C3iroboticsLidar::PwmInit()
 {
     int num = GetDeviceNodeID();
     std::string str = "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0";
@@ -559,13 +559,13 @@ void C3iroboticsLidar::adbInit()
     std::string str_enable =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
    if(access(str.c_str(), 0) == -1)
    {
-       adbWriteData(str_export.c_str(), (int64_t)0);
+       PwmWriteData(str_export.c_str(), (int64_t)0);
        usleep(20);
    }
-    adbWriteData(str_period.c_str(), 20000000);
-    adbWriteData(str_duty_cycle.c_str(), 15000000);
-    adbWriteData(str_polarity.c_str(), "inversed");//normal 
-    adbWriteData(str_enable.c_str(), (int64_t)1);
+    PwmWriteData(str_period.c_str(), 20000000);
+    PwmWriteData(str_duty_cycle.c_str(), 15000000);
+    PwmWriteData(str_polarity.c_str(), "inversed");//normal 
+    PwmWriteData(str_enable.c_str(), (int64_t)1);
 }
 /***********************************************************************************
 Function:     ControlLidarPause
@@ -579,7 +579,7 @@ void C3iroboticsLidar::ControlLidarPause()
 {
     int num = GetDeviceNodeID();
     std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
-    adbWriteData(str.c_str(), (int64_t)0);
+    PwmWriteData(str.c_str(), (int64_t)0);
 }
 /***********************************************************************************
 Function:     ControlLidarStart
@@ -593,7 +593,7 @@ void C3iroboticsLidar::ConnectLidarStart()
 {
     int num = GetDeviceNodeID();
     std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
-    adbWriteData(str.c_str(), (int64_t)1);
+    PwmWriteData(str.c_str(), (int64_t)1);
 }
 /***********************************************************************************
 Function:     SetDeviceNodeID
@@ -642,7 +642,7 @@ void C3iroboticsLidar::controlLidarPWM(int8_t percent)
 
     duty_cycle = percent * 20000000 / 100;
     
-    adbWriteData(str.c_str(), duty_cycle);
+    PwmWriteData(str.c_str(), duty_cycle);
 }
 
 
@@ -691,7 +691,7 @@ Others:       None
 ***********************************************************************************/
 int C3iroboticsLidar::SetLidarExpectSpeed(double speed)
 {
-    if((speed > 8.0)&&(speed < 4.0))
+    if((speed > 8.0)||(speed < 4.0))
         return -1;
     else
     {

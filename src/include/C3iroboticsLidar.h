@@ -121,14 +121,14 @@ namespace everest
                 /* Enable log when receive timer overs */
                 void enableLogWhenReceiveTimeOvers(bool state) {m_receiver.enableLogWhenReceiveTimeOvers(state);}
 
-                /* adb Write */
-                void adbWriteData(const char *file_name, int64_t data);
+                /* pwn Write */
+                void PwmWriteData(const char *file_name, int64_t data);
 
-                /* adb Write */
-                void adbWriteData(const char *file_name, const char *data);
+                /* pwd Write */
+                void PwmWriteData(const char *file_name, const char *data);
 
-                /* adb Init */
-                void adbInit();
+                /* pwm Init */
+                void PwmInit();
 
                 /* Control Lidar Speed */
                 void controlLidarSpeed();
@@ -224,6 +224,7 @@ namespace everest
                 char SoftwareV[16];
                 char HardwareV[16];
                 char Lidartype[8];
+                std::string Lds_str;
             private:
                 CDeviceConnection       *m_device_connect;
                 CLidarPacketReceiver    m_receiver;
