@@ -163,6 +163,9 @@ namespace everest
                 /*Get Lidar Type*/
                 std::string GetLidarType();
 
+                /*get lidar information*/
+                bool GetDeviceInfo();
+
             private:
                 /* Analysis packet */
                 TLidarGrabResult analysisPacket(CLidarPacket &lidar_packet);

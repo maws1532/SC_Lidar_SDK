@@ -711,22 +711,12 @@ Others:       None
 std::string C3iroboticsLidar::GetLidarSNCode()
 {
 
-    //char pTmpbuf[32] = {0};
-    char *temp = &SNCode[8];
-    char *tmp = pProInfopBuf;
-
-    for(int i = 0;i < 24;i++)
+    for(int i = 0;i < 8;i++)
     {
-        char str = *tmp;
-        if(str < 0x41)
-            str = str - 0x30;
-        else
-            str = str - 65 + 10;
-        *temp = str;
-        tmp++;
-        temp++;
+        SNCode[i] = '0';
     }
-   
+    strncpy(&SNCode[8], pProInfopBuf, 24);
+    SNCode[32] = '\0';
     std::string string = SNCode;
     return string;
 
@@ -741,12 +731,10 @@ Others:       None
 ***********************************************************************************/
 std::string C3iroboticsLidar::GetLidarFirmwareVersion()
 {
-    char *tmp = pProInfopBuf;
-    char * temp = SoftwareV;
+    strncpy(SoftwareV, &pProInfopBuf[32], 11);
+    SoftwareV[11] = '\0';
+
     std::string string = SoftwareV;
-    tmp += 32;
-    strncpy(temp, tmp, 11);
-    
     return string;
 }
 /***********************************************************************************
@@ -759,12 +747,10 @@ Others:       None
 ***********************************************************************************/
 std::string C3iroboticsLidar::GetLidarHardwareVersion()
 {
-    char *tmp = pProInfopBuf;
-    char * temp = HardwareV;
+    strncpy(HardwareV, &pProInfopBuf[44], 11);
+    HardwareV[11] = '\0';
+
     std::string string = HardwareV;
-    tmp += 44; 
-    strncpy(temp, tmp, 11);
-    
     return string;
 }
 /***********************************************************************************
@@ -777,11 +763,31 @@ Others:       None
 ***********************************************************************************/
 std::string C3iroboticsLidar::GetLidarType()
 {
-    char *tmp = pProInfopBuf;
-    char *temp = Lidartype;
-    std::string string = Lidartype;
-    tmp += 25;
-    strncpy(temp, tmp, 6);
 
+    strncpy(Lidartype, &pProInfopBuf[25], 6);
+    Lidartype[6] = '\0';
+    
+    std::string string = Lidartype;
     return string;
+}
+/***********************************************************************************
+Function:     GetDeviceInfo
+Description:  get lidar infomation
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+bool C3iroboticsLidar::GetDeviceInfo()
+{
+    std::string str_Sn = pProInfopBuf;
+    if(str_Sn.npos != str_Sn.find(Lds_str))
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+    
 }

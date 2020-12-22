@@ -13,3 +13,9 @@ state:
 2、recompose GitLidarFirmWareVerdion function return string type
 3、recompose GitLidarHardwareVersion function return string type
 4、recompose GitLidarType function return string type
+
+
+Version:
+	tag6.0
+state:
+1、optimization get SN、 lidar type、firmware version、hardware version function

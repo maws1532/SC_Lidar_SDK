@@ -67,16 +67,25 @@ int main(int argc, char * argv[])
     }
 
     printf("C3iroboticslidar connected\n");
-
     robotics_lidar.initilize(&serial_connect);
+    
+    robotics_lidar.getScanData();
+
+    usleep(100 * 1000);
+    if(robotics_lidar.GetDeviceInfo())//git device infomation
+    {
+        std::string str1 = robotics_lidar.GetLidarSNCode();
+        std::string str2 = robotics_lidar.GetLidarType();
+        std::string str3 = robotics_lidar.GetLidarFirmwareVersion();
+        std::string str4 = robotics_lidar.GetLidarHardwareVersion();
+        printf("SN:%s type:%s FW:%s HW:%s \n",str1.c_str(), str2.c_str(), str3.c_str(), str4.c_str());
+    }
     while(1)
     {
         //usleep(100000);
 		TLidarGrabResult result = robotics_lidar.getScanData();
-        
-        std::string str_Sn = robotics_lidar.pProInfopBuf;
-        if(str_Sn.npos != str_Sn.find(robotics_lidar.Lds_str))
-            robotics_lidar.controlLidarSpeed();
+
+        robotics_lidar.controlLidarSpeed();
 
         switch(result)
         {
@@ -111,7 +120,8 @@ int main(int argc, char * argv[])
             case LIDAR_GRAB_ERRO:
             {
                 
-                //printf("[Main] Lidar error code = %d \n", robotics_lidar.getLidarError());
+                printf("[Main] Lidar error code = %d \n", robotics_lidar.getLidarError());
+
                 break;
             }
             case LIDAR_GRAB_ELSE:
