@@ -152,16 +152,16 @@ namespace everest
                 u8 GetDeviceNodeID();
 
                 /*Get Lidar SN code*/
-                u8 * GetLidarSNCode();
+                std::string GetLidarSNCode();
 
-                /*get lidar software version*/
-                char *GetLidarSoftwareVersion();
+                /*get lidar Firm version*/
+                std::string GetLidarFirmwareVersion();
 
                 /*Get Lidar Hardware Version*/
-                char *GetLidarHardwareVersion();
+                std::string GetLidarHardwareVersion();
 
                 /*Get Lidar Type*/
-                char *GetLidarType();
+                std::string GetLidarType();
 
             private:
                 /* Analysis packet */
@@ -220,7 +220,7 @@ namespace everest
                 TLidarScan              m_lidar_scan;
                 ErrorTimeOut            Error_timeout;
                 char pProInfopBuf[128];
-                u8 SNCode[16];
+                char SNCode[64];
                 char SoftwareV[16];
                 char HardwareV[16];
                 char Lidartype[8];

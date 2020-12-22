@@ -51,9 +51,8 @@ int main(int argc, char * argv[])
     CSerialConnection serial_connect;
     C3iroboticsLidar robotics_lidar;
 
-    robotics_lidar.PwmInit();       //adb init
-
-
+    robotics_lidar.PwmInit();//PWM init
+    
     serial_connect.setBaud(opt_com_baudrate);
     serial_connect.setPort(opt_com_path.c_str());
     if(serial_connect.openSimple())
@@ -70,9 +69,7 @@ int main(int argc, char * argv[])
     printf("C3iroboticslidar connected\n");
 
     robotics_lidar.initilize(&serial_connect);
-
-  
-    while (1)
+    while(1)
     {
         //usleep(100000);
 		TLidarGrabResult result = robotics_lidar.getScanData();
@@ -115,8 +112,6 @@ int main(int argc, char * argv[])
             {
                 
                 //printf("[Main] Lidar error code = %d \n", robotics_lidar.getLidarError());
-                robotics_lidar.GetLidarSNCode();
-                printf("lidar type:%s lidar SW:%s HW:%s\n", robotics_lidar.GetLidarType(), robotics_lidar.GetLidarSoftwareVersion(), robotics_lidar.GetLidarHardwareVersion());
                 break;
             }
             case LIDAR_GRAB_ELSE:

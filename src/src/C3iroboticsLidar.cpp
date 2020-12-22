@@ -468,7 +468,7 @@ TLidarGrabResult C3iroboticsLidar::analysisLidarSpeed(CLidarPacket &lidar_packet
         return LIDAR_GRAB_ING;
 
     double lidar_erro_speed = (*pTemp) * 0.05f;
-
+    //printf("curspeed:%5.2f\n", lidar_erro_speed);
     if(!Error_timeout.speedflag)
         Error_timeout.speedflag = true;
     
@@ -566,6 +566,7 @@ void C3iroboticsLidar::PwmInit()
     PwmWriteData(str_duty_cycle.c_str(), 15000000);
     PwmWriteData(str_polarity.c_str(), "inversed");//normal 
     PwmWriteData(str_enable.c_str(), (int64_t)1);
+
 }
 /***********************************************************************************
 Function:     ControlLidarPause
@@ -707,11 +708,11 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-u8 * C3iroboticsLidar::GetLidarSNCode()
+std::string C3iroboticsLidar::GetLidarSNCode()
 {
 
-    u8 pTmpbuf[32] = {0};
-    u8 *temp = pTmpbuf;
+    //char pTmpbuf[32] = {0};
+    char *temp = &SNCode[8];
     char *tmp = pProInfopBuf;
 
     for(int i = 0;i < 24;i++)
@@ -721,17 +722,13 @@ u8 * C3iroboticsLidar::GetLidarSNCode()
             str = str - 0x30;
         else
             str = str - 65 + 10;
-        *temp = (u8)str;
+        *temp = str;
         tmp++;
         temp++;
     }
    
-    for(int i = 0;i < 12; i++)
-    {
-        SNCode[i] = (pTmpbuf[2*i] << 4) + pTmpbuf[2*i+1];
-        printf("%02x ", SNCode[i]);
-    }
-    return SNCode;
+    std::string string = SNCode;
+    return string;
 
 }
 /***********************************************************************************
@@ -742,14 +739,15 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-char *C3iroboticsLidar::GetLidarSoftwareVersion()
+std::string C3iroboticsLidar::GetLidarFirmwareVersion()
 {
     char *tmp = pProInfopBuf;
     char * temp = SoftwareV;
+    std::string string = SoftwareV;
     tmp += 32;
     strncpy(temp, tmp, 11);
     
-    return SoftwareV;
+    return string;
 }
 /***********************************************************************************
 Function:     GetLidarHardwareVersion
@@ -759,14 +757,15 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-char *C3iroboticsLidar::GetLidarHardwareVersion()
+std::string C3iroboticsLidar::GetLidarHardwareVersion()
 {
     char *tmp = pProInfopBuf;
     char * temp = HardwareV;
+    std::string string = HardwareV;
     tmp += 44; 
     strncpy(temp, tmp, 11);
     
-    return HardwareV;
+    return string;
 }
 /***********************************************************************************
 Function:     GetLidarType
@@ -776,11 +775,13 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-char *C3iroboticsLidar::GetLidarType()
+std::string C3iroboticsLidar::GetLidarType()
 {
     char *tmp = pProInfopBuf;
     char *temp = Lidartype;
+    std::string string = Lidartype;
     tmp += 25;
     strncpy(temp, tmp, 6);
-    return Lidartype;
+
+    return string;
 }
