@@ -566,6 +566,8 @@ void C3iroboticsLidar::PwmInit()
     PwmWriteData(str_duty_cycle.c_str(), 15000000);
     PwmWriteData(str_polarity.c_str(), "inversed");//normal 
     PwmWriteData(str_enable.c_str(), (int64_t)1);
+    usleep(1000*1000);
+
 
 }
 /***********************************************************************************

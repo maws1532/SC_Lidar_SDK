@@ -19,3 +19,7 @@ Version:
 	tag6.0
 state:
 1、optimization get SN、 lidar type、firmware version、hardware version function
+
+Version:
+	tag6.1
+1、add set pwm delay
