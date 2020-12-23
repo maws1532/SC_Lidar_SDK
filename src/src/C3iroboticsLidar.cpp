@@ -58,7 +58,7 @@ C3iroboticsLidar::C3iroboticsLidar()
     speedStableFlag = false;
     countSpeed = 0;
     memset(pProInfopBuf, 0, 128);
-    memset(SNCode, 0, 16);
+    memset(SNCode, 0, 64);
     memset(SoftwareV, 0, 16);
     memset(HardwareV, 0, 16);
     memset(Lidartype, 0, 8);
@@ -784,7 +784,7 @@ bool C3iroboticsLidar::GetDeviceInfo()
     bool flut = FALSE;
     std::string str_Info;
 
-    m_GitSNcount_down.setTime(m_params.GitSN_time_out);
+    m_GetSNcount_down.setTime(m_params.GetSN_time_out);
     
     while(1)
     {
@@ -796,7 +796,7 @@ bool C3iroboticsLidar::GetDeviceInfo()
             flut = TRUE;
             break;
         }
-        else if(m_GitSNcount_down.isEnd())
+        else if(m_GetSNcount_down.isEnd())
         {
             flut = FALSE;
             break;

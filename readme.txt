@@ -28,3 +28,9 @@ Version:
 	tag6.2
 state:
 1、optimization Lidar Git information
+
+Version:
+	tag6.3
+
+state:
+1、optimization intensity 、 variable name 、initialization 

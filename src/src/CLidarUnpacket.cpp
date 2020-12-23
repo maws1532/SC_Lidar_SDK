@@ -241,7 +241,7 @@ TToothScan CLidarUnpacket::unpacketNewLidarScanHasSingal(CLidarPacket &packet)
     {
         signal = CLidarPacket::bufToUByte((buffer+ head_ptr_offset) + 3*i);
         distance = CLidarPacket::bufToUByte2((buffer+ head_ptr_offset) + 3*i + 1);
-        if(distance < 8000)
+        if((distance < 8000)&&(distance > 0))
         {
             tmpnum = signal / 16.0;
             tmpnum = tmpnum *tmpnum;
@@ -249,6 +249,11 @@ TToothScan CLidarUnpacket::unpacketNewLidarScanHasSingal(CLidarPacket &packet)
             tmpnum = tmpnum / 50;
             signal = (u8)(tmpnum - 80);
         }
+        else
+        {
+            signal = 2;
+        }
+        
         tooth_scan.distance[i] = float(distance) / 4.0f / 1000.0f;
         tooth_scan.signal[i] = int(signal);
         if(distance > 0)

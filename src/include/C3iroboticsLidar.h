@@ -211,14 +211,14 @@ namespace everest
                         scan_time_out_ms = 150;
                         speed_time_out = 3500;
                         Shield_time_out = 3500;
-                        GitSN_time_out = 10000;
+                        GetSN_time_out = 10000;
                     }
 
                     size_t packet_wait_time_ms;
                     size_t scan_time_out_ms;
                     size_t speed_time_out;
                     size_t Shield_time_out;
-                    size_t GitSN_time_out;
+                    size_t GetSN_time_out;
                     int tooth_number;
                 };
             public:
@@ -253,7 +253,7 @@ namespace everest
                 CCountDown              m_speed_count_down;
                 CCountDown              m_stop_count_down;
                 CCountDown              m_Shield_count_down;
-                CCountDown              m_GitSNcount_down;
+                CCountDown              m_GetSNcount_down;
                 //调整速度相关变量 
                 double  error;
                 double  last_error;
