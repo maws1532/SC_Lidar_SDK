@@ -69,10 +69,6 @@ int main(int argc, char * argv[])
     printf("C3iroboticslidar connected\n");
     robotics_lidar.initilize(&serial_connect);
     
-    
-    robotics_lidar.getScanData();
-
-    usleep(100 * 1000);
     if(robotics_lidar.GetDeviceInfo())//git device infomation
     {
         std::string str1 = robotics_lidar.GetLidarSNCode();

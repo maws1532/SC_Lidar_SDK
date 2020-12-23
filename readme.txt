@@ -23,3 +23,8 @@ state:
 Version:
 	tag6.1
 1、add set pwm delay
+
+Version:
+	tag6.2
+state:
+1、optimization Lidar Git information

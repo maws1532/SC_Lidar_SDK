@@ -127,10 +127,10 @@ int C3iroboticsLidar::ScanErrTimeOut(CLidarPacket *packet)
     }
     else if(Error_timeout.Shieldflag)
     {
-        if(m_Shield_ocount_down.isEnd())
+        if(m_Shield_count_down.isEnd())
         {
             printf("Lidar shield\n");
-            m_Shield_ocount_down.setTime((double)m_params.Shield_time_out);
+            m_Shield_count_down.setTime((double)m_params.Shield_time_out);
             packet->m_lidar_erro = LIDAR_ERROR_SHIELD;
             return -1;
         }
@@ -477,7 +477,7 @@ TLidarGrabResult C3iroboticsLidar::analysisLidarSpeed(CLidarPacket &lidar_packet
     if(str_Sn.npos == str_Sn.find(Lds_str)&&(NULL != pTemp))
         strncpy(pProInfopBuf, pTemp, 56);
         
-
+    //printf("info:%s\n", pProInfopBuf);
     m_current_lidar_speed = lidar_erro_speed;
     m_receive_lidar_speed = true;
 
@@ -566,7 +566,6 @@ void C3iroboticsLidar::PwmInit()
     PwmWriteData(str_duty_cycle.c_str(), 15000000);
     PwmWriteData(str_polarity.c_str(), "inversed");//normal 
     PwmWriteData(str_enable.c_str(), (int64_t)1);
-    usleep(1000*1000);
 
 
 }
@@ -782,14 +781,29 @@ Others:       None
 ***********************************************************************************/
 bool C3iroboticsLidar::GetDeviceInfo()
 {
-    std::string str_Sn = pProInfopBuf;
-    if(str_Sn.npos != str_Sn.find(Lds_str))
+    bool flut = FALSE;
+    std::string str_Info;
+
+    m_GitSNcount_down.setTime(m_params.GitSN_time_out);
+    
+    while(1)
     {
-        return TRUE;
+        getScanData();
+        str_Info = pProInfopBuf;
+
+        if(str_Info.npos != str_Info.find(Lds_str))
+        {
+            flut = TRUE;
+            break;
+        }
+        else if(m_GitSNcount_down.isEnd())
+        {
+            flut = FALSE;
+            break;
+        }
+
     }
-    else
-    {
-        return FALSE;
-    }
+    return flut;
+
     
 }
