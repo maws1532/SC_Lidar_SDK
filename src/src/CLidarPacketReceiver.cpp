@@ -83,7 +83,7 @@ bool CLidarPacketReceiver::receivePacket(CLidarPacket *packet)
 		if(m_count_down.isEnd())
 		{
 			//printf("[CLidarPacketReceiver] Receive packet time %5.2f ms is over!\n", m_count_down.getInputTime());
-            printf("revice data over\n");
+            printf("FILE:%s(LINE:%d)-<FUNCTION:%s> revice data over\n", __FILE__,__LINE__,__FUNCTION__);
             packet->m_lidar_erro = LIDAR_ERROR_TIME_OVER;
 			if(m_log_when_receive_time_over)
             {

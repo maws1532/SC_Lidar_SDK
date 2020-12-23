@@ -118,7 +118,7 @@ int C3iroboticsLidar::ScanErrTimeOut(CLidarPacket *packet)
         
         if(m_speed_count_down.isEnd())
         {
-            printf("Lidar speed lost\n");
+            printf("FILE:%s(LINE:%d)-<FUNCTOIN:%s> Lidar speed lost\n", __FILE__,__LINE__,__FUNCTION__);
             m_speed_count_down.setTime((double)m_params.speed_time_out);
             packet->m_lidar_erro = LIDAR_ERROR_LOST_SPEED;
 
@@ -129,7 +129,7 @@ int C3iroboticsLidar::ScanErrTimeOut(CLidarPacket *packet)
     {
         if(m_Shield_count_down.isEnd())
         {
-            printf("Lidar shield\n");
+            printf("FILE:%s(LINE:%d)-<FUNCTION:%s> Lidar shield\n", __FILE__,__LINE__,__FUNCTION__);
             m_Shield_count_down.setTime((double)m_params.Shield_time_out);
             packet->m_lidar_erro = LIDAR_ERROR_SHIELD;
             return -1;

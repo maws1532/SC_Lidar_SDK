@@ -208,7 +208,7 @@ TToothScan CLidarUnpacket::unpacketNewLidarScanHasSingal(CLidarPacket &packet)
     u16 distance = 0;
     u8 signal = 0;
     u16 tooth_angle_start = 0, tooth_angle_end = 0;
-    double tmpnum = 0;
+    u16 tmpnum = 0;
 
     // Get tooth angle, unit is 0.01 degree
     lidar_speed = CLidarPacket::bufToUByte(buffer + head_ptr_offset);                   head_ptr_offset += 1;
@@ -243,11 +243,10 @@ TToothScan CLidarUnpacket::unpacketNewLidarScanHasSingal(CLidarPacket &packet)
         distance = CLidarPacket::bufToUByte2((buffer+ head_ptr_offset) + 3*i + 1);
         if((distance < 8000)&&(distance > 0))
         {
-            tmpnum = signal / 16.0;
+            tmpnum = signal >> 5;
             tmpnum = tmpnum *tmpnum;
             tmpnum = tmpnum * tmpnum;
-            tmpnum = tmpnum / 50;
-            signal = (u8)(tmpnum - 80);
+            signal = tmpnum >> 2;
         }
         else
         {

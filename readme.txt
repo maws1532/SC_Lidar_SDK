@@ -34,3 +34,9 @@ Version:
 
 state:
 1、optimization intensity 、 variable name 、initialization 
+
+
+Version:
+	tag6.4
+state:
+1、optimization intensity algorithm 
