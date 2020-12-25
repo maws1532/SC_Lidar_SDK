@@ -40,3 +40,8 @@ Version:
 	tag6.4
 state:
 1、optimization intensity algorithm 
+
+Version:
+	tag6.5
+1、optimization intensity by signal data
+2、need matching lidar program
