@@ -87,9 +87,6 @@ int main(int argc, char * argv[])
         switch(result)
         {
             case LIDAR_GRAB_ING:
-            {
-                break;
-            }
             case LIDAR_GRAB_SUCESS:
             {
                 TLidarScan lidar_scan = robotics_lidar.getLidarScan();
