@@ -45,3 +45,8 @@ Version:
 	tag6.5
 1、optimization intensity by signal data
 2、need matching lidar program
+
+Verdion:
+	tag6.6
+1、optimization main function the return value 
+ 
