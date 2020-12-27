@@ -87,6 +87,11 @@ namespace everest
                     GRAB_SCAN_FIRST = 0,
                     GRAB_SCAN_ELSE_DATA
                 };
+                enum PWMPolarityState
+                {
+                    INVERSED = 0,
+                    NORMAL
+                };
 
                 /* Constructor */
                 C3iroboticsLidar();
@@ -166,6 +171,9 @@ namespace everest
                 /*get lidar information*/
                 bool GetDeviceInfo();
 
+                /*set pwm polarity*/
+                bool SetPwmpolarity(PWMPolarityState state);
+
             private:
                 /* Analysis packet */
                 TLidarGrabResult analysisPacket(CLidarPacket &lidar_packet);
@@ -237,6 +245,7 @@ namespace everest
                 //TLidarScan              m_lidar_scan;
                 //TLidarError             m_lidar_erro;
                 TGrabScanState          m_grab_scan_state;
+                PWMPolarityState        m_pwm_polarity_state;
                 int                     m_grab_scan_count;
                 int                     m_Shield_count;
                 float                   m_last_scan_angle;

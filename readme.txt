@@ -49,4 +49,8 @@ Version:
 Verdion:
 	tag6.6
 1、optimization main function the return value 
- 
+
+Version:
+	tag6.7
+state:
+1、add set pwm polarity

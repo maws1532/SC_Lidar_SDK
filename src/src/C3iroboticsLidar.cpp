@@ -50,6 +50,7 @@ C3iroboticsLidar::C3iroboticsLidar()
     m_Shield_count = 0;
     Node_num = 0;
     Lds_str = "LDS";
+    m_pwm_polarity_state = INVERSED;
     //调整速度相关变量
     error = 0.0;
     last_error = 0;
@@ -564,7 +565,14 @@ void C3iroboticsLidar::PwmInit()
    }
     PwmWriteData(str_period.c_str(), 20000000);
     PwmWriteData(str_duty_cycle.c_str(), 15000000);
-    PwmWriteData(str_polarity.c_str(), "inversed");//normal 
+    if(INVERSED == m_pwm_polarity_state)
+    {
+        PwmWriteData(str_polarity.c_str(), "inversed");//normal 
+    }
+    else
+    {
+        PwmWriteData(str_polarity.c_str(), "normal"); 
+    }
     PwmWriteData(str_enable.c_str(), (int64_t)1);
 }
 /***********************************************************************************
@@ -804,4 +812,35 @@ bool C3iroboticsLidar::GetDeviceInfo()
     return flut;
 
     
+}
+/***********************************************************************************
+Function:     SetPwmpolarity
+Description:  set pwm polarity
+Input:        pwm polarity
+Output:       None
+Return:       success return 0,or return -1 
+Others:       None
+***********************************************************************************/
+bool C3iroboticsLidar::SetPwmpolarity(PWMPolarityState state)
+{
+    switch (state)
+    {
+        case INVERSED:
+        {
+            m_pwm_polarity_state = INVERSED;
+            return 0;
+        }    
+        case NORMAL:
+        {
+            m_pwm_polarity_state = NORMAL;
+            return 0;
+        }
+        default:
+        {
+            printf("please set correct pwm polarity!");
+            break;
+        }
+        
+    }
+    return -1;
 }
