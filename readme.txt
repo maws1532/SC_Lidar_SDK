@@ -54,3 +54,8 @@ Version:
 	tag6.7
 state:
 1、add set pwm polarity
+
+Version:
+	tag6.8
+1、set the pwm signal period to 20KHZ
+
