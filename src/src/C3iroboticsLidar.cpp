@@ -563,8 +563,8 @@ void C3iroboticsLidar::PwmInit()
        PwmWriteData(str_export.c_str(), (int64_t)0);
        usleep(20);
    }
-    PwmWriteData(str_period.c_str(), 20000000);
-    PwmWriteData(str_duty_cycle.c_str(), 15000000);
+    PwmWriteData(str_period.c_str(), 50000);
+    PwmWriteData(str_duty_cycle.c_str(), 37500);
     if(INVERSED == m_pwm_polarity_state)
     {
         PwmWriteData(str_polarity.c_str(), "inversed");//normal 
@@ -648,7 +648,7 @@ void C3iroboticsLidar::controlLidarPWM(int8_t percent)
     }
     percent = percent % 100;
 
-    duty_cycle = percent * 20000000 / 100;
+    duty_cycle = percent * 50000 / 100;
     
     PwmWriteData(str.c_str(), duty_cycle);
 }
