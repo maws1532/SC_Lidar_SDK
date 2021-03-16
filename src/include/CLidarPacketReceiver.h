@@ -64,6 +64,21 @@ namespace everest
                     PACKET_FAILED
                 };
 
+                enum SNState
+                {
+                    GetSN_ING = 0,
+                    GetSN_SUCCESS,
+                    GetSN_FAILED
+                    
+                };
+                
+                
+                /*Set lidar SN flag*/
+                void SetSNFlag(SNState state);
+
+                /*Get lidar SN flag*/
+                SNState GetSNFlag(void);
+
                 /* Enable log when receive timer overs */
                 void enableLogWhenReceiveTimeOvers(bool state) {m_log_when_receive_time_over = state;}
 
@@ -104,6 +119,7 @@ namespace everest
                 CCountDown          m_count_down;
                 TParams             m_params;
                 TState              m_state;
+                SNState             m_SNState;
                 int                 m_actual_count;
                 int                 m_packet_length;
                 std::ofstream       m_save_fp;

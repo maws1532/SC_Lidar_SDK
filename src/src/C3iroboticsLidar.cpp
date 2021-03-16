@@ -667,7 +667,7 @@ void C3iroboticsLidar::controlLidarSpeed()
 
     double currentSpeed = getLidarCurrentSpeed();
     double expectspeed = GetLidarExpectspeed();
-    
+    //printf("curr speed %5.2f\n, currentSpeed");
     double speed = currentSpeed;
     last_error = error;   
     error = expectspeed - speed;           
@@ -800,13 +800,18 @@ bool C3iroboticsLidar::GetDeviceInfo()
         if(str_Info.npos != str_Info.find(Lds_str))
         {
             flut = TRUE;
+            m_receiver.SetSNFlag(m_receiver.GetSN_SUCCESS);
+            //printf("get SN flag success:%d\n", m_receiver.GetSNFlag());
             break;
         }
         else if(m_GetSNcount_down.isEnd())
         {
             flut = FALSE;
+            m_receiver.SetSNFlag(m_receiver.GetSN_FAILED);
+            //printf("get SN flag failed:%d\n", m_receiver.GetSNFlag());
             break;
         }
+        
 
     }
     return flut;

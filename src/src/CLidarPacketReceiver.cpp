@@ -40,6 +40,7 @@ CLidarPacketReceiver::CLidarPacketReceiver()
     m_log_when_receive_time_over = false;
     reset();
     m_counter = 0;
+    m_SNState = GetSN_ING;
 }
 
 /***********************************************************************************
@@ -100,7 +101,11 @@ bool CLidarPacketReceiver::receivePacket(CLidarPacket *packet)
         int read_bytes = m_device_conn->read((char *)&ch, 1, 1);
 		if(read_bytes == 0)
 		{
-			continue;
+			
+            if(GetSN_ING == GetSNFlag())
+                return false;
+            else
+                continue;
 		}
 		else if(read_bytes < 0)
 		{
@@ -173,6 +178,12 @@ CLidarPacketReceiver::TPacketResult CLidarPacketReceiver::processStateHeader1(CL
         m_state = STATE_HEADER2;
         m_count_down.setTime(m_params.packet_wait_time_ms);
     }
+    else
+    {
+        if(GetSN_ING == GetSNFlag())
+            return PACKET_FAILED;
+    }
+    
     return PACKET_ING;
 }
 
@@ -194,6 +205,9 @@ CLidarPacketReceiver::TPacketResult CLidarPacketReceiver::processStateHeader2(CL
     else
     {
         reset();
+        if(GetSN_ING == GetSNFlag())
+            return PACKET_FAILED;
+        
         printf("[CLidarPacketReceiver] Find erro header2 0x%x!\n", ch);
     }
     return PACKET_ING;
@@ -214,6 +228,8 @@ CLidarPacketReceiver::TPacketResult CLidarPacketReceiver::processStateLength(CLi
     if(ch < 6 || ch > 250)
     {
         reset();
+        if(GetSN_ING == GetSNFlag())
+            return PACKET_FAILED;
         printf("[CLidarPacketReceiver] Find erro length is 0x%x!\n", (ch));
         return PACKET_ING;
     }
@@ -272,4 +288,30 @@ void CLidarPacketReceiver::reset()
     m_state = STATE_HEADER1;
     m_actual_count = 0;
     m_packet_length = 0;
+}
+/***********************************************************************************
+Function:     SetSNFlag
+Description:  Set SN Flag
+Input:        SNState
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void CLidarPacketReceiver::SetSNFlag(SNState state)
+{
+        m_SNState = state;
+
+}
+/***********************************************************************************
+Function:     GetSNFlag
+Description:  Get SN Flag
+Input:        None
+Output:       SNState
+Return:       None
+Others:       None
+***********************************************************************************/
+CLidarPacketReceiver::SNState CLidarPacketReceiver::GetSNFlag()
+{
+        return m_SNState;
+
 }

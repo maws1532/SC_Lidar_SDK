@@ -59,3 +59,7 @@ Version:
 	tag6.8
 1、set the pwm signal period to 20KHZ
 
+Version:
+	tag6.9
+state:
+1、optimize the problem of too long lidar initialzation time

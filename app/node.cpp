@@ -77,13 +77,17 @@ int main(int argc, char * argv[])
         std::string str4 = robotics_lidar.GetLidarHardwareVersion();
         printf("SN:%s type:%s FW:%s HW:%s \n",str1.c_str(), str2.c_str(), str3.c_str(), str4.c_str());
     }
+    else
+    {
+        printf("please sure lidar is shanchaung,or connect error!\n");
+    }
+
     while(1)
     {
         //usleep(100000);
 		TLidarGrabResult result = robotics_lidar.getScanData();
 
         robotics_lidar.controlLidarSpeed();
-
         switch(result)
         {
             case LIDAR_GRAB_ING:

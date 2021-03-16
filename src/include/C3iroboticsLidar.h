@@ -219,7 +219,7 @@ namespace everest
                         scan_time_out_ms = 150;
                         speed_time_out = 3500;
                         Shield_time_out = 3500;
-                        GetSN_time_out = 10000;
+                        GetSN_time_out = 8000;
                     }
 
                     size_t packet_wait_time_ms;
