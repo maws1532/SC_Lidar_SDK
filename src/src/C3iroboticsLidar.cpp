@@ -790,6 +790,7 @@ bool C3iroboticsLidar::GetDeviceInfo()
     bool flut = FALSE;
     std::string str_Info;
 
+	m_receiver.SetSNFlag(m_receiver.GetSN_ING);
     m_GetSNcount_down.setTime(m_params.GetSN_time_out);
     
     while(1)

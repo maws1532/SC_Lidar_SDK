@@ -63,3 +63,8 @@ Version:
 	tag6.9
 state:
 1、optimize the problem of too long lidar initialzation time
+
+Version:
+	tag7.0
+state:
+1、Add SN initialization in function GetDeviceInfo
