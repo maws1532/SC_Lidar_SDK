@@ -635,18 +635,17 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-void C3iroboticsLidar::controlLidarPWM(int8_t percent)
+void C3iroboticsLidar::controlLidarPWM(int32_t percent)
 {
     uint32_t duty_cycle = 0;
     int num = GetDeviceNodeID();
 
     std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/duty_cycle";
 
-    if((percent < 0)||(percent > 100))
-    {
-        percent = 40;
-    }
-    percent = percent % 100;
+    if(percent > 100)
+        percent = 100;
+    else if(percent < 0)
+        percent = 0;
 
     duty_cycle = percent * 50000 / 100;
     
@@ -672,19 +671,12 @@ void C3iroboticsLidar::controlLidarSpeed()
     last_error = error;   
     error = expectspeed - speed;           
     error_sum += error;          
-    if(error_sum > 20)
-    {
-        error_sum = 20;
-    }
-    else if(error_sum < -20)
-    {
-        error_sum = -20;
-    }
-    if(error < 1 && error > -1)
-        percent = 40 + error_sum*1.0 + 0.1*error + 0.5*(error - last_error);
-    else
-        percent = 40 + error_sum*1.0 + 5*error + 5*(error - last_error);
-
+    if(error_sum > 50)
+        error_sum = 50;
+    else if(error_sum < -43)
+        error_sum = -43;
+    percent = 50 + error_sum*1.0 + error * 1.0;
+    printf("curspeed:%5.2f, percent:%d, error_sum:%5.2f, error:%5.2f\n", speed, percent, error_sum, error);
     controlLidarPWM(percent);
 
     

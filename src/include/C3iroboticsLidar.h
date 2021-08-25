@@ -206,7 +206,7 @@ namespace everest
                 void toothScan2LidarScan(TToothScan &tooth_scan, TLidarScan &lidar_scan);
 
                 /* Control Lidar PWM */
-                void controlLidarPWM(int8_t percent);//yuy
+                void controlLidarPWM(int32_t percent);//yuy
 
                 /* Params */
                 struct TParams
@@ -267,7 +267,7 @@ namespace everest
                 double  error;
                 double  last_error;
                 double  error_sum;
-                int8_t percent;
+                int32_t percent;
                 bool    speedStableFlag;
                 uint8_t countSpeed;
                 u8 Node_num;

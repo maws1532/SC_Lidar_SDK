@@ -68,3 +68,8 @@ Version:
 	tag7.0
 state:
 1、Add SN initialization in function GetDeviceInfo
+
+version:
+	tag7.1
+State:
+1、optimized PID algorithm
