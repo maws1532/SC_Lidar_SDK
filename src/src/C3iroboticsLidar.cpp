@@ -635,20 +635,19 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-void C3iroboticsLidar::controlLidarPWM(int32_t percent)
+void C3iroboticsLidar::controlLidarPWM(int32_t percent_num)
 {
     uint32_t duty_cycle = 0;
     int num = GetDeviceNodeID();
 
     std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/duty_cycle";
+    if(percent_num > 85)
+        percent_num = 85;
+    else if(percent_num < 0)
+        percent_num = 0;
 
-    if(percent > 100)
-        percent = 100;
-    else if(percent < 0)
-        percent = 0;
-
-    duty_cycle = percent * 50000 / 100;
-    
+    percent = percent_num;
+    duty_cycle = percent_num * 50000 / 100;
     PwmWriteData(str.c_str(), duty_cycle);
 }
 
@@ -663,21 +662,19 @@ Others:       None
 ***********************************************************************************/
 void C3iroboticsLidar::controlLidarSpeed()
 {
-
+    int32_t percent_num;
     double currentSpeed = getLidarCurrentSpeed();
     double expectspeed = GetLidarExpectspeed();
     //printf("curr speed %5.2f\n, currentSpeed");
     double speed = currentSpeed;
-    last_error = error;   
     error = expectspeed - speed;           
     error_sum += error;          
-    if(error_sum > 50)
-        error_sum = 50;
-    else if(error_sum < -43)
-        error_sum = -43;
-    percent = 50 + error_sum*1.0 + error * 1.0;
-    printf("curspeed:%5.2f, percent:%d, error_sum:%5.2f, error:%5.2f\n", speed, percent, error_sum, error);
-    controlLidarPWM(percent);
+    if(error_sum > 40)
+        error_sum = 40;
+    else if(error_sum < -40)
+        error_sum = -40;
+    percent_num = 45 + error_sum*1.0 + error * 1.0;
+    controlLidarPWM(percent_num);
 
     
 }
@@ -841,4 +838,16 @@ bool C3iroboticsLidar::SetPwmpolarity(PWMPolarityState state)
         
     }
     return -1;
+}
+/***********************************************************************************
+Function:     getpwm
+Description:  get pwm
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+int32_t C3iroboticsLidar::GetPwm()
+{
+    return percent;
 }

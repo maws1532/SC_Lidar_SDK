@@ -137,6 +137,9 @@ namespace everest
 
                 /* Control Lidar Speed */
                 void controlLidarSpeed();
+
+                /*get pwm*/
+                int32_t GetPwm();
                 
                 /*Set Lidar Expect speed*/
                 int SetLidarExpectSpeed(double speed);

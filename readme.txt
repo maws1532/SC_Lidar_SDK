@@ -73,3 +73,9 @@ version:
 	tag7.1
 State:
 1、optimized PID algorithm
+
+version:
+        tag7.2
+State:
+1、optimized PID algorithm,lower PWM upper limit
+2、add getpwm function
