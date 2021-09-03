@@ -53,6 +53,7 @@ C3iroboticsLidar::C3iroboticsLidar()
     m_pwm_polarity_state = INVERSED;
     //调整速度相关变量
     error = 0.0;
+    MaxPwm = 85;
     last_error = 0;
     error_sum = 0.0;
     percent = 0;
@@ -628,6 +629,36 @@ u8 C3iroboticsLidar::GetDeviceNodeID()
     return Node_num;
 }
 /***********************************************************************************
+Function:     GetPWMMaxLimit
+Description:  get max pwm limit
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+/***********************************************************************************/
+u8 C3iroboticsLidar::GetPWMMaxLimit()
+{
+    return MaxPwm;
+}
+/***********************************************************************************
+Function:     GetPWMMaxLimit
+Description:  get max pwm limit
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+/***********************************************************************************/
+int C3iroboticsLidar::SetPWMMaxLimit(u8 limit)
+{
+    if((limit < 10)||(limit > 85))
+    {
+        printf("pwm max limited is 10%~85%!");
+        return -1;
+    }
+    MaxPwm = limit;
+    return 0;
+}
+/***********************************************************************************
 Function:     controlLidarPWM
 Description:  Control Lidar PWM
 Input:        None
@@ -639,13 +670,12 @@ void C3iroboticsLidar::controlLidarPWM(int32_t percent_num)
 {
     uint32_t duty_cycle = 0;
     int num = GetDeviceNodeID();
-
+    u8 limit = GetPWMMaxLimit();
     std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/duty_cycle";
-    if(percent_num > 85)
-        percent_num = 85;
+    if(percent_num > limit)
+        percent_num = limit;
     else if(percent_num < 0)
         percent_num = 0;
-
     percent = percent_num;
     duty_cycle = percent_num * 50000 / 100;
     PwmWriteData(str.c_str(), duty_cycle);

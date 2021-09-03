@@ -79,3 +79,8 @@ version:
 State:
 1、optimized PID algorithm,lower PWM upper limit
 2、add getpwm function
+
+version:
+	tag7.3
+state:
+1、add pwm limit setting and get function

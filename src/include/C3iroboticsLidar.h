@@ -140,6 +140,12 @@ namespace everest
 
                 /*get pwm*/
                 int32_t GetPwm();
+
+                /*get max pwm limit*/
+                u8 GetPWMMaxLimit();
+
+                /*set max pwm limit*/
+                int SetPWMMaxLimit(u8 limit);
                 
                 /*Set Lidar Expect speed*/
                 int SetLidarExpectSpeed(double speed);
@@ -274,6 +280,7 @@ namespace everest
                 bool    speedStableFlag;
                 uint8_t countSpeed;
                 u8 Node_num;
+                u8 MaxPwm;
 
 		};
 	}

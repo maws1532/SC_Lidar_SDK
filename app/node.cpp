@@ -81,7 +81,7 @@ int main(int argc, char * argv[])
     {
         printf("please sure lidar is shanchaung,or connect error!\n");
     }
-
+    //printf("SetPWMMaxLimit:%d\n", robotics_lidar.SetPWMMaxLimit(80));
     while(1)
     {
         //usleep(100000);
