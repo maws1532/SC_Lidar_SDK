@@ -108,15 +108,23 @@ namespace everest
                     {
                         packet_max_time_ms = 3500;
                         packet_wait_time_ms = 100;
+                        CRC_max_time_ms = 3500;
+                        Data_Wrong_time_out = 3500;
                     }
 
                     size_t packet_max_time_ms;
                     size_t packet_wait_time_ms;
+                    size_t CRC_max_time_ms;
+                    size_t Data_Wrong_time_out;
                 };
 
             private:
                 CDeviceConnection 	*m_device_conn;
                 CCountDown          m_count_down;
+                CCountDown          Timeout_Data_Wrong;
+                bool                m_error_Data_Wrong;
+                CCountDown          Timeout_CRC;
+                bool                m_error_crc;
                 TParams             m_params;
                 TState              m_state;
                 SNState             m_SNState;

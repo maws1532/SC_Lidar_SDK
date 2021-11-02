@@ -75,7 +75,6 @@ bool CLidarPacketReceiver::receivePacket(CLidarPacket *packet)
 		printf("[CLidarPacketReceiver] receivePacket: connection not open!\n");
 		return false;
 	}
-
     /* Read packet */
 	m_count_down.setTime((double)m_params.packet_max_time_ms);
 	char ch;
@@ -177,11 +176,15 @@ CLidarPacketReceiver::TPacketResult CLidarPacketReceiver::processStateHeader1(CL
         packet->pushBack(ch);
         m_state = STATE_HEADER2;
         m_count_down.setTime(m_params.packet_wait_time_ms);
+
     }
     else
     {
+
         if(GetSN_ING == GetSNFlag())
+        {
             return PACKET_FAILED;
+        }
     }
     
     return PACKET_ING;
@@ -201,9 +204,17 @@ CLidarPacketReceiver::TPacketResult CLidarPacketReceiver::processStateHeader2(CL
     {
         packet->pushBack(ch);
         m_state = STATE_LENGHT;
+        if(packet->m_error_Data_Wrong)
+            packet->m_error_Data_Wrong = false;
     }
     else
     {
+        if(!packet->m_error_Data_Wrong)
+        {
+            packet->m_error_Data_Wrong = true;
+            packet->Timeout_Data_Wrong.setTime((double)m_params.Data_Wrong_time_out);
+            return PACKET_FAILED;
+        }
         reset();
         if(GetSN_ING == GetSNFlag())
             return PACKET_FAILED;
@@ -262,13 +273,19 @@ CLidarPacketReceiver::TPacketResult CLidarPacketReceiver::processStateAcquireDat
 		
         if(packet->verifyCheckSum(packet->getPrototypeCode()))
         {
+            if(packet->m_error_crc)
+            {
+                packet->m_error_crc = false;
+            }
             return PACKET_SUCCESS;
         }
         else
         {
-            printf("[CLidarPacketReceiver] CRC verify wrong!\n");
-            packet->m_lidar_erro = LIDAR_ERROR_CRC;
-//            packet->printHex();
+            if(!packet->m_error_crc)
+            {
+                packet->m_error_crc = true;
+                packet->Timeout_CRC.setTime((double)m_params.CRC_max_time_ms);
+            }
             return PACKET_FAILED;
         }
     }

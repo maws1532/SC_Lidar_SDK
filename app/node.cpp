@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
 {
     int count = 0;
 	int    opt_com_baudrate = 115200;//230400;
-    string opt_com_path = "/dev/ttyS5";
+    string opt_com_path = "/dev/ttyS1";
 
     CSerialConnection serial_connect;
     C3iroboticsLidar robotics_lidar;
@@ -79,9 +79,8 @@ int main(int argc, char * argv[])
     }
     else
     {
-        printf("please sure lidar is shanchaung,or connect error!\n");
+        printf("please sure lidar is shanchaung,or connect error,error num:%d\n", robotics_lidar.getLidarError());
     }
-    //printf("SetPWMMaxLimit:%d\n", robotics_lidar.SetPWMMaxLimit(80));
     while(1)
     {
         //usleep(100000);
@@ -118,9 +117,8 @@ int main(int argc, char * argv[])
             case LIDAR_GRAB_ERRO:
             {
                 
-                printf("[Main] Lidar error code = %d \n", robotics_lidar.getLidarError());
-
-                break;
+               //printf("[Main] Lidar error code = %d \n", robotics_lidar.getLidarError());
+               break;
             }
             case LIDAR_GRAB_ELSE:
             {

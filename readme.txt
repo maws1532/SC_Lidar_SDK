@@ -84,3 +84,8 @@ version:
 	tag7.3
 state:
 1、add pwm limit setting and get function
+
+version:
+	tag7.4
+state:
+1、Refine error details

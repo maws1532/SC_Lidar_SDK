@@ -48,9 +48,9 @@ C3iroboticsLidar::C3iroboticsLidar()
     Error_timeout.Shieldflag = FALSE;
     Error_timeout.speedflag = FALSE;
     m_Shield_count = 0;
-    Node_num = 0;
+    Node_num = 1;
     Lds_str = "LDS";
-    m_pwm_polarity_state = INVERSED;
+    m_pwm_polarity_state = NORMAL;
     //调整速度相关变量
     error = 0.0;
     MaxPwm = 85;
@@ -76,7 +76,7 @@ Others:       None
 ***********************************************************************************/
 C3iroboticsLidar::~C3iroboticsLidar()
 {
-
+    printf("~C3iroboticsLidar\n");
 }
 
 /***********************************************************************************
@@ -114,16 +114,34 @@ int C3iroboticsLidar::ScanErrTimeOut(CLidarPacket *packet)
 
     if(LIDAR_ERROR_TIME_OVER == packet->m_lidar_erro)
         goto LOG;
-
-    if(Error_timeout.speedflag)
+   if(packet->m_error_Data_Wrong)//data wrong
+    {
+        if(packet->Timeout_Data_Wrong.isEnd())
+        {
+            printf("(LINE:%d)-<FUNCTOIN:%s> Lidar Data Wrong\n",__LINE__,__FUNCTION__);
+            packet->m_error_Data_Wrong = false;
+            packet->m_lidar_erro = LIDAR_ERROR_DATA_WRONG;
+            return -1;
+        }
+    }
+    if(packet->m_error_crc)//crc
+    {
+        if(packet->Timeout_CRC.isEnd())
+        {
+            printf("(LINE:%d)-<FUNCTOIN:%s> Lidar CRC timeout\n",__LINE__,__FUNCTION__);
+            packet->m_error_crc = false;
+            packet->m_lidar_erro = LIDAR_ERROR_CRC;
+            return -1;
+        }
+    } 
+    else if(Error_timeout.speedflag)//speed
     {
         
         if(m_speed_count_down.isEnd())
         {
             printf("(LINE:%d)-<FUNCTOIN:%s> Lidar speed lost\n",__LINE__,__FUNCTION__);
-            m_speed_count_down.setTime((double)m_params.speed_time_out);
             packet->m_lidar_erro = LIDAR_ERROR_LOST_SPEED;
-
+            Error_timeout.speedflag = false;
             return -1;
         }
     }
@@ -132,8 +150,8 @@ int C3iroboticsLidar::ScanErrTimeOut(CLidarPacket *packet)
         if(m_Shield_count_down.isEnd())
         {
             printf("(LINE:%d)-<FUNCTION:%s> Lidar shield\n",__LINE__,__FUNCTION__);
-            m_Shield_count_down.setTime((double)m_params.Shield_time_out);
             packet->m_lidar_erro = LIDAR_ERROR_SHIELD;
+            Error_timeout.Shieldflag = false;
             return -1;
         }
     }
@@ -166,12 +184,11 @@ TLidarGrabResult C3iroboticsLidar::getScanData()
             combineScan(m_remainder_tooth_scan);
         }
         else 
-        {
+        {   
             if(m_receiver.receivePacket(&m_packet))
                 grab_result = analysisPacket(m_packet);
             else
                 grab_result = LIDAR_GRAB_ERRO;
-
             if(-1 == ScanErrTimeOut(&m_packet))
             {
                 grab_result = LIDAR_GRAB_ERRO;
@@ -284,7 +301,11 @@ TLidarGrabResult C3iroboticsLidar::combineScan(TToothScan &tooth_scan)
                 m_Shield_count = 0;
                 if(count < 6)
                 {
-                    Error_timeout.Shieldflag = TRUE;
+                    if(!Error_timeout.Shieldflag)
+                    {
+                        Error_timeout.Shieldflag = TRUE;
+                        m_Shield_count_down.setTime((double)m_params.Shield_time_out);
+                    }
                 }
                 else
                 {
@@ -472,8 +493,11 @@ TLidarGrabResult C3iroboticsLidar::analysisLidarSpeed(CLidarPacket &lidar_packet
     double lidar_erro_speed = (*pTemp) * 0.05f;
     //printf("curspeed:%5.2f\n", lidar_erro_speed);
     if(!Error_timeout.speedflag)
+    {
         Error_timeout.speedflag = true;
-    
+         m_speed_count_down.setTime((double)m_params.speed_time_out);
+         printf("curspeed:%5.2f\n", lidar_erro_speed);
+    }
     pTemp++;
     std::string str_Sn = pProInfopBuf;
     if(str_Sn.npos == str_Sn.find(Lds_str)&&(NULL != pTemp))
@@ -828,6 +852,7 @@ bool C3iroboticsLidar::GetDeviceInfo()
         {
             flut = FALSE;
             m_receiver.SetSNFlag(m_receiver.GetSN_FAILED);
+            m_packet.m_lidar_erro = LIDAR_ERROR_DATA_INIT_DATA_WRONG;
             //printf("get SN flag failed:%d\n", m_receiver.GetSNFlag());
             break;
         }

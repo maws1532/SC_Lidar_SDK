@@ -18,6 +18,9 @@ History:
 /******************************* Current libs includes ****************************/
 #include "typedef.h"
 
+/******************************* Current libs includes ****************************/
+#include "CCountDown.h"
+
 /******************************* System libs includes *****************************/
 #include <vector>
 #include <stddef.h>
@@ -34,6 +37,9 @@ namespace everest
             LIDAR_ERROR_LOST_SPEED,
             LIDAR_ERROR_TIME_OVER,
             LIDAR_ERROR_SHIELD,
+            LIDAR_ERROR_DATA_WRONG,
+            LIDAR_ERROR_DATA_INIT_DATA_EMPTY,
+            LIDAR_ERROR_DATA_INIT_DATA_WRONG,
             LIDAR_ERROR_UNKNOW,
         };
 
@@ -43,8 +49,8 @@ namespace everest
                 /* Constructor */
                 CLidarPacket();
 
-                /* Destructor */
-                ~CLidarPacket() { }
+               //Destructor
+               ~CLidarPacket() {};
 
                 /* Return true if buffer is empty */
                 bool isEmpty() { return m_length == 0? true: false; }
@@ -124,6 +130,10 @@ namespace everest
                 TParams            m_params;
                 bool               m_valid;
                 TLidarError        m_lidar_erro;
+                bool               m_error_crc;//
+                CCountDown         Timeout_CRC;//
+                bool               m_error_Data_Wrong;
+                CCountDown         Timeout_Data_Wrong; 
 	    };
 	}
 }

@@ -39,8 +39,9 @@ Others:       None
 CLidarPacket::CLidarPacket()
 {
 	reset();
+	m_error_crc = false;
+	m_error_Data_Wrong = false;
 }
-
 /***********************************************************************************
 Function:     reset
 Description:  Reset packet
