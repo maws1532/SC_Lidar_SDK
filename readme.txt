@@ -89,3 +89,8 @@ version:
 	tag7.4
 state:
 1、Refine error details
+
+version:
+        tag7.5
+state:
+1、optimize the PWMinit function

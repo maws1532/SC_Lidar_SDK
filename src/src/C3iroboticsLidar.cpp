@@ -574,7 +574,7 @@ Output:       None
 Return:       None
 Others:       None
 ***********************************************************************************/
-void C3iroboticsLidar::PwmInit()
+void C3iroboticsLidar::PwmInit(PWMPolarityState state)
 {
     int num = GetDeviceNodeID();
     std::string str = "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0";
@@ -583,20 +583,24 @@ void C3iroboticsLidar::PwmInit()
     std::string str_duty_cycle =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/duty_cycle";
     std::string str_polarity =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/polarity";
     std::string str_enable =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
-   if(access(str.c_str(), 0) == -1)
+
+    if(access(str.c_str(), 0) == -1)
    {
        PwmWriteData(str_export.c_str(), (int64_t)0);
        usleep(20);
    }
     PwmWriteData(str_period.c_str(), 50000);
     PwmWriteData(str_duty_cycle.c_str(), 37500);
-    if(INVERSED == m_pwm_polarity_state)
+
+    if(INVERSED == state)
     {
-        PwmWriteData(str_polarity.c_str(), "inversed");//normal 
+        m_pwm_polarity_state=INVERSED;
+        PwmWriteData(str_polarity.c_str(), "inversed");//normal
     }
     else
     {
-        PwmWriteData(str_polarity.c_str(), "normal"); 
+        m_pwm_polarity_state=NORMAL;
+        PwmWriteData(str_polarity.c_str(), "normal");
     }
     PwmWriteData(str_enable.c_str(), (int64_t)1);
 }

@@ -133,7 +133,7 @@ namespace everest
                 void PwmWriteData(const char *file_name, const char *data);
 
                 /* pwm Init */
-                void PwmInit();
+                void PwmInit(PWMPolarityState state);
 
                 /* Control Lidar Speed */
                 void controlLidarSpeed();
@@ -228,7 +228,7 @@ namespace everest
                         scan_time_out_ms = 150;
                         speed_time_out = 3500;
                         Shield_time_out = 3500;
-                        GetSN_time_out = 8000;
+                        GetSN_time_out = 5000;
                     }
 
                     size_t packet_wait_time_ms;
