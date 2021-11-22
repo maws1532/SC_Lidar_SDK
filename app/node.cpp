@@ -51,7 +51,7 @@ int main(int argc, char * argv[])
     CSerialConnection serial_connect;
     C3iroboticsLidar robotics_lidar;
 
-    robotics_lidar.PwmInit();//PWM init
+    robotics_lidar.PwmInit(robotics_lidar.NORMAL);//PWM init
 
     serial_connect.setBaud(opt_com_baudrate);
     serial_connect.setPort(opt_com_path.c_str());

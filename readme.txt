@@ -94,3 +94,9 @@ version:
         tag7.5
 state:
 1、optimize the PWMinit function
+
+version:
+	tag7.6
+status:
+1、Add the pwminit function parameterargument
+	
