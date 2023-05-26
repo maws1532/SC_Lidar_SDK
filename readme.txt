@@ -99,4 +99,8 @@ version:
 	tag7.6
 status:
 1、Add the pwminit function parameterargument
+
+version:
+	tag7.7
+1、Added radar protocol version acquisition
 	

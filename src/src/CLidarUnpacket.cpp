@@ -21,7 +21,7 @@ History:
 /********************************** Name space ************************************/
 using namespace everest;
 using namespace everest::hwdrivers;
-
+CLidarUnpacket::TLidarVersion CLidarUnpacket::lidar_v = LIDAR_NONE;
 /***********************************************************************************
 Function:     CLidarUnpacket
 Description:  The constructor of CLidarUnpacket
@@ -47,7 +47,16 @@ CLidarUnpacket::~CLidarUnpacket()
 {
 
 }
-
+/*get lidar information*/
+void CLidarUnpacket::SetLidarInformation(TLidarVersion version)
+{
+    lidar_v = version;
+}
+/*get lidar information*/
+CLidarUnpacket::TLidarVersion CLidarUnpacket::GetLidarInformation(void)
+{
+    return lidar_v;
+}
 /***********************************************************************************
 Function:     unpacketLidarScan
 Description:  Lidar unpacket
@@ -209,7 +218,17 @@ TToothScan CLidarUnpacket::unpacketNewLidarScanHasSingal(CLidarPacket &packet)
     u8 signal = 0;
     u16 tooth_angle_start = 0, tooth_angle_end = 0;
     int tmpnum = 0;
-
+    if(LIDAR_NONE == GetLidarInformation())
+    {
+        if(0x10 == packet.getPrototypeCode())
+        {
+            SetLidarInformation(LIDAR_2_6_K);
+        }
+        else if(0x20 == packet.getPrototypeCode())
+        {
+            SetLidarInformation(LIDAR_2_1_K);
+        }
+    }
     // Get tooth angle, unit is 0.01 degree
     lidar_speed = CLidarPacket::bufToUByte(buffer + head_ptr_offset);                   head_ptr_offset += 1;
     lidar_offset_angle = CLidarPacket::bufToByte2(buffer + head_ptr_offset);            head_ptr_offset += 2;

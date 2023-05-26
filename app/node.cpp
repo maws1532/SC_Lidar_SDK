@@ -46,10 +46,12 @@ int main(int argc, char * argv[])
 {
     int count = 0;
 	int    opt_com_baudrate = 115200;//230400;
-    string opt_com_path = "/dev/ttyS1";
+    string opt_com_path = "/dev/ttyUSB0";
 
     CSerialConnection serial_connect;
     C3iroboticsLidar robotics_lidar;
+    CLidarUnpacket unpacket;
+    CLidarUnpacket::TLidarVersion version = CLidarUnpacket::LIDAR_NONE;
 
     robotics_lidar.PwmInit(robotics_lidar.NORMAL);//PWM init
 
@@ -92,6 +94,22 @@ int main(int argc, char * argv[])
             case LIDAR_GRAB_ING:
             case LIDAR_GRAB_SUCESS:
             {
+                if(!version)
+                {
+                    version = unpacket.GetLidarInformation();
+                    switch(version)
+                    {
+                        case CLidarUnpacket::LIDAR_2_1_K:
+                        {
+                            printf("2c_Lite lidar sample 2.1K \n");
+                        } 
+                        case CLidarUnpacket::LIDAR_2_6_K:
+                        {
+                            printf("2c Pro lidar sample 2.6K \n");
+                        } 
+
+                    }
+                }
                 TLidarScan lidar_scan = robotics_lidar.getLidarScan();
                 size_t lidar_scan_size = lidar_scan.getSize();
 

@@ -50,6 +50,12 @@ namespace everest
 		class CLidarUnpacket
 		{
             public:
+                enum TLidarVersion
+                {
+                    LIDAR_NONE = 0,
+                    LIDAR_2_6_K, 
+                    LIDAR_2_1_K,
+                };
                 /* Constructor */
                 CLidarUnpacket();
 
@@ -75,6 +81,18 @@ namespace everest
                 static int unpacketLidarSpeed(CLidarPacket &packet);
                 /* Lidar Information */
                 static u8 *unpacketLidarInformation(CLidarPacket &packet);
+
+                /*set lidar information*/
+                static void SetLidarInformation(TLidarVersion version);
+
+                /*get lidar information*/
+
+                static TLidarVersion GetLidarInformation(void);
+
+            private:
+                static TLidarVersion lidar_v;
+
+
 		};
 	}
 }
