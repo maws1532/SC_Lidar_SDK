@@ -59,6 +59,7 @@ C3iroboticsLidar::C3iroboticsLidar()
     percent = 0;
     speedStableFlag = false;
     countSpeed = 0;
+    LidarV = TLidarVersion::LIDAR_NONE;
     memset(pProInfopBuf, 0, 128);
     memset(SNCode, 0, 64);
     memset(SoftwareV, 0, 16);
@@ -487,9 +488,20 @@ TLidarGrabResult C3iroboticsLidar::analysisLidarSpeed(CLidarPacket &lidar_packet
 {
     
     char *pTemp = (char*)CLidarUnpacket::unpacketLidarInformation(lidar_packet);
+    uint tmp = CLidarUnpacket::UnpackerLidarVersion(lidar_packet);
     if(NULL == pTemp)
         return LIDAR_GRAB_ING;
-
+        
+    if(0x10 == tmp)
+    {
+        SetLidarversion(LIDAR_2_6_K);
+    }
+    else if(0x20 == tmp)
+    {
+        SetLidarversion(LIDAR_2_1_K);
+    }
+    
+    
     double lidar_erro_speed = (*pTemp) * 0.05f;
     //printf("curspeed:%5.2f\n", lidar_erro_speed);
     if(!Error_timeout.speedflag)
@@ -774,6 +786,30 @@ std::string C3iroboticsLidar::GetLidarSNCode()
     std::string string = SNCode;
     return string;
 
+}
+/***********************************************************************************
+Function:     SetLidarversion
+Description:  Set lidar version
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::SetLidarversion(TLidarVersion ver)
+{
+    LidarV = ver;
+}
+/***********************************************************************************
+Function:     GetLidarversion
+Description:  get lidar version
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+TLidarVersion C3iroboticsLidar::GetLidarversion()
+{
+    return LidarV;
 }
 /***********************************************************************************
 Function:     GetLidarSoftwareVersion

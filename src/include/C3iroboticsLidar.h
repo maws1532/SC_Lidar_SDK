@@ -78,6 +78,12 @@ namespace everest
             I3LIDAR_LIDAR_SPEED  = 0xAE,
             I3LIDAR_NEW_DISTANCE = 0xAD
         };
+        enum TLidarVersion
+        {
+            LIDAR_NONE = 0,
+            LIDAR_2_6_K, 
+            LIDAR_2_1_K,
+        };
 
 		class C3iroboticsLidar
 		{
@@ -183,6 +189,12 @@ namespace everest
                 /*set pwm polarity*/
                 bool SetPwmpolarity(PWMPolarityState state);
 
+                /*get lidar vesion*/
+                TLidarVersion GetLidarversion();
+
+                /*Setlidar versio*/
+                void SetLidarversion(TLidarVersion ver);
+
             private:
                 /* Analysis packet */
                 TLidarGrabResult analysisPacket(CLidarPacket &lidar_packet);
@@ -247,6 +259,7 @@ namespace everest
                 char HardwareV[16];
                 char Lidartype[8];
                 std::string Lds_str;
+                TLidarVersion LidarV;
             private:
                 CDeviceConnection       *m_device_connect;
                 CLidarPacketReceiver    m_receiver;

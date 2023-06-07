@@ -51,7 +51,6 @@ int main(int argc, char * argv[])
     CSerialConnection serial_connect;
     C3iroboticsLidar robotics_lidar;
     CLidarUnpacket unpacket;
-    CLidarUnpacket::TLidarVersion version = CLidarUnpacket::LIDAR_NONE;
 
     robotics_lidar.PwmInit(robotics_lidar.NORMAL);//PWM init
 
@@ -77,7 +76,12 @@ int main(int argc, char * argv[])
         std::string str2 = robotics_lidar.GetLidarType();
         std::string str3 = robotics_lidar.GetLidarFirmwareVersion();
         std::string str4 = robotics_lidar.GetLidarHardwareVersion();
+        TLidarVersion ver= robotics_lidar.GetLidarversion();
         printf("SN:%s type:%s FW:%s HW:%s \n",str1.c_str(), str2.c_str(), str3.c_str(), str4.c_str());
+        if(LIDAR_2_6_K == ver)
+            printf("this is 2c_pro lidar!!!\n");
+        else if(LIDAR_2_1_K == ver)
+            printf("this is 2c_Lite lidar!!!\n");
     }
     else
     {
@@ -94,22 +98,6 @@ int main(int argc, char * argv[])
             case LIDAR_GRAB_ING:
             case LIDAR_GRAB_SUCESS:
             {
-                if(!version)
-                {
-                    version = unpacket.GetLidarInformation();
-                    switch(version)
-                    {
-                        case CLidarUnpacket::LIDAR_2_1_K:
-                        {
-                            printf("2c_Lite lidar sample 2.1K \n");
-                        } 
-                        case CLidarUnpacket::LIDAR_2_6_K:
-                        {
-                            printf("2c Pro lidar sample 2.6K \n");
-                        } 
-
-                    }
-                }
                 TLidarScan lidar_scan = robotics_lidar.getLidarScan();
                 size_t lidar_scan_size = lidar_scan.getSize();
 

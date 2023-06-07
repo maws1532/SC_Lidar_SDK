@@ -103,4 +103,7 @@ status:
 version:
 	tag7.7
 1、Added radar protocol version acquisition
+version:
+	tag7.8
+1、optimized  acquisition lidar version
 	
