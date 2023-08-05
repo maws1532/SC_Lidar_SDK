@@ -106,4 +106,6 @@ version:
 version:
 	tag7.8
 1、optimized  acquisition lidar version
-	
+version:
+	tag7.9
+1、create a new branch,4K lidar sampling rate

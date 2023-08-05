@@ -45,7 +45,7 @@ using namespace everest::hwdrivers;
 int main(int argc, char * argv[])
 {
     int count = 0;
-	int    opt_com_baudrate = 115200;//230400;
+	int    opt_com_baudrate = 230400;
     string opt_com_path = "/dev/ttyUSB0";
 
     CSerialConnection serial_connect;
