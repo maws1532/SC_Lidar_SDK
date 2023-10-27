@@ -106,4 +106,8 @@ version:
 version:
 	tag7.8
 1、optimized  acquisition lidar version
+
+verdion:
+	tag7.9
+1、optimize map building points
 	

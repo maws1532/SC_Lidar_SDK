@@ -24,6 +24,7 @@ History:
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <cmath>
 //#include <sys/io.h>
 /********************************** Name space ************************************/
 using namespace everest;
@@ -418,7 +419,37 @@ bool C3iroboticsLidar::isFirstScan(TToothScan &tooth_scan)
 	return false;
     //return tooth_scan.angle < 0.0001? true: false;
 }
-
+/***********************************************************************************
+Function:     LidarTranform
+Description:  None
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::LidarTranform(float &Angle, float &Dis)
+{
+    const float DIS_OFFEST = 18.3;
+    const float LIDAR_PAI = 3.1415926;
+    float angle_temp = Angle;
+    float dis_temp = Dis*1000.0;
+    if(dis_temp > 0.0)
+    {
+        float angle1 = LIDAR_PAI/2.0 - std::atan(dis_temp/DIS_OFFEST);
+        angle_temp = angle_temp + angle1/LIDAR_PAI*180;
+        if(angle_temp > 360.0)
+        {
+            angle_temp -= 360.0;
+        }
+        else if(angle_temp < 0.0)
+        {
+            angle_temp += 360.0;
+        }
+        dis_temp = std::sqrt(DIS_OFFEST*DIS_OFFEST+dis_temp*dis_temp);
+        Angle = angle_temp;
+        Dis = dis_temp/1000.0f;
+    }
+}
 /***********************************************************************************
 Function:     toothScan2LidarScan
 Description:  Change tooth scan to lidar scan
@@ -448,6 +479,9 @@ void C3iroboticsLidar::toothScan2LidarScan(TToothScan &tooth_scan, TLidarScan &l
     {
         lidar_scan.angle[i] = first_angle + i * angle_step;
         lidar_scan.distance[i] = tooth_scan.distance[i];
+        //printf("yuanshi:angle:%6.3f, dis:%6.3f\n\r",lidar_scan.angle[i], lidar_scan.distance[i]);
+        LidarTranform(lidar_scan.angle[i], lidar_scan.distance[i]);
+        //printf("swap:angle:%6.3f, dis:%6.3f\n\r",lidar_scan.angle[i], lidar_scan.distance[i]);
     }
     if(has_signal)
     {

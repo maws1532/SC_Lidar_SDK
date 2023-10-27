@@ -229,6 +229,9 @@ namespace everest
                 /* Control Lidar PWM */
                 void controlLidarPWM(int32_t percent);//yuy
 
+                /**/
+                void LidarTranform(float &Angle, float &Dis);
+
                 /* Params */
                 struct TParams
                 {
