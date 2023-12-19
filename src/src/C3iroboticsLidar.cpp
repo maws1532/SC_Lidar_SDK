@@ -433,9 +433,11 @@ void C3iroboticsLidar::LidarTranform(float &Angle, float &Dis)
     const float LIDAR_PAI = 3.1415926;
     float angle_temp = Angle;
     float dis_temp = Dis*1000.0;
+    static float angelComp= 0.0;
     if(dis_temp > 0.0)
     {
         float angle1 = LIDAR_PAI/2.0 - std::atan(dis_temp/DIS_OFFEST);
+        angelComp = angle1/LIDAR_PAI*180;
         angle_temp = angle_temp + angle1/LIDAR_PAI*180;
         if(angle_temp > 360.0)
         {
@@ -448,6 +450,10 @@ void C3iroboticsLidar::LidarTranform(float &Angle, float &Dis)
         dis_temp = std::sqrt(DIS_OFFEST*DIS_OFFEST+dis_temp*dis_temp);
         Angle = angle_temp;
         Dis = dis_temp/1000.0f;
+    }
+    else
+    {
+        Angle = Angle + angelComp; 
     }
 }
 /***********************************************************************************
