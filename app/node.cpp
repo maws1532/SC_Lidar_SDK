@@ -82,6 +82,8 @@ int main(int argc, char * argv[])
             printf("this is 2c_pro lidar!!!\n");
         else if(LIDAR_2_1_K == ver)
             printf("this is 2c_Lite lidar!!!\n");
+        else if(LIDAR_2_6_K_SC02 == ver)
+            printf("this is Delta_SC_02 Lidar!!!\n");
     }
     else
     {

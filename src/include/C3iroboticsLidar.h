@@ -83,6 +83,7 @@ namespace everest
             LIDAR_NONE = 0,
             LIDAR_2_6_K, 
             LIDAR_2_1_K,
+            LIDAR_2_6_K_SC02
         };
 
 		class C3iroboticsLidar

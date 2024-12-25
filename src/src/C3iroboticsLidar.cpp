@@ -540,6 +540,10 @@ TLidarGrabResult C3iroboticsLidar::analysisLidarSpeed(CLidarPacket &lidar_packet
     {
         SetLidarversion(LIDAR_2_1_K);
     }
+    else if(0x21 == tmp)
+    {
+        SetLidarversion(LIDAR_2_6_K_SC02);
+    }
     
     
     double lidar_erro_speed = (*pTemp) * 0.05f;
