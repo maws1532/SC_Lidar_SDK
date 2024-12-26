@@ -114,4 +114,8 @@ verdion:
 verdion:
 	tag8.0
 1、optimize Angle calibration
+
+verdion:
+	tag8.1
+added SC-02 radar protocol version
 	
