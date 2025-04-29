@@ -20,7 +20,6 @@
 #include <fcntl.h>
 #include <string.h>
 
-
 #define DEBUG_MAIN
 
 #define DEG2RAD(x) ((x)*M_PI/180.)
@@ -52,6 +51,7 @@ int main(int argc, char * argv[])
     C3iroboticsLidar robotics_lidar;
     CLidarUnpacket unpacket;
 
+    robotics_lidar.SetDevicepwmID(9);
     robotics_lidar.PwmInit(robotics_lidar.NORMAL);//PWM init
 
     serial_connect.setBaud(opt_com_baudrate);

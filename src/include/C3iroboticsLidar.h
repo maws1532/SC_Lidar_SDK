@@ -172,6 +172,12 @@ namespace everest
                 /*Get Device Node number*/
                 u8 GetDeviceNodeID();
 
+                /*Get Device pwmID*/
+                std::string GetDevicepwmID();
+
+                /*Set Device pwmID*/
+                void SetDevicepwmID(u8 num);
+
                 /*Get Lidar SN code*/
                 std::string GetLidarSNCode();
 
@@ -297,6 +303,7 @@ namespace everest
                 bool    speedStableFlag;
                 uint8_t countSpeed;
                 u8 Node_num;
+                u8 Pwm_num;
                 u8 MaxPwm;
 
 		};

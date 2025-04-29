@@ -50,6 +50,7 @@ C3iroboticsLidar::C3iroboticsLidar()
     Error_timeout.speedflag = FALSE;
     m_Shield_count = 0;
     Node_num = 1;
+    Pwm_num = 0;
     Lds_str = "LDS";
     m_pwm_polarity_state = NORMAL;
     //调整速度相关变量
@@ -633,13 +634,14 @@ Others:       None
 void C3iroboticsLidar::PwmInit(PWMPolarityState state)
 {
     int num = GetDeviceNodeID();
-    std::string str = "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0";
+    std::string pwmid = GetDevicepwmID(); 
+    std::string str = "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+ pwmid;
     std::string str_export = "/sys/class/pwm/pwmchip" + std::to_string(num) + "/export";
-    std::string str_period =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/period";
-    std::string str_duty_cycle =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/duty_cycle";
-    std::string str_polarity =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/polarity";
-    std::string str_enable =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
-
+    std::string str_period =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+ pwmid + "/period";
+    std::string str_duty_cycle =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+pwmid+"/duty_cycle";
+    std::string str_polarity =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+ pwmid+"/polarity";
+    std::string str_enable =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+ pwmid +"/enable";
+    
     if(access(str.c_str(), 0) == -1)
    {
        PwmWriteData(str_export.c_str(), (int64_t)0);
@@ -671,7 +673,8 @@ Others:       None
 void C3iroboticsLidar::ControlLidarPause()
 {
     int num = GetDeviceNodeID();
-    std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
+    std::string pwmid = GetDevicepwmID(); 
+    std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+pwmid+"/enable";
     PwmWriteData(str.c_str(), (int64_t)0);
 }
 /***********************************************************************************
@@ -685,7 +688,9 @@ Others:       None
 void C3iroboticsLidar::ConnectLidarStart()
 {
     int num = GetDeviceNodeID();
-    std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/enable";
+    std::string pwmid = GetDevicepwmID(); 
+    std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+pwmid+"/enable";
+    
     PwmWriteData(str.c_str(), (int64_t)1);
 }
 /***********************************************************************************
@@ -711,6 +716,32 @@ Others:       None
 u8 C3iroboticsLidar::GetDeviceNodeID()
 {
     return Node_num;
+}
+/***********************************************************************************
+Function:     GetDevicepwmID
+Description:  Get  Device  pwm  ID
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+std::string C3iroboticsLidar::GetDevicepwmID()
+{
+    std::string pwm;
+    pwm = "pwm" + std::to_string(Pwm_num);
+    return pwm;
+}
+/***********************************************************************************
+Function:     SetDevicepwmID
+Description:  Set  Device  pwm  ID
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+void C3iroboticsLidar::SetDevicepwmID(u8 pwmnum)
+{
+    Pwm_num = pwmnum;
 }
 /***********************************************************************************
 Function:     GetPWMMaxLimit
@@ -755,7 +786,8 @@ void C3iroboticsLidar::controlLidarPWM(int32_t percent_num)
     uint32_t duty_cycle = 0;
     int num = GetDeviceNodeID();
     u8 limit = GetPWMMaxLimit();
-    std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/pwm0/duty_cycle";
+    std::string pwmid = GetDevicepwmID();
+    std::string str =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+pwmid+"/duty_cycle";
     if(percent_num > limit)
         percent_num = limit;
     else if(percent_num < 0)

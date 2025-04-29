@@ -118,4 +118,8 @@ verdion:
 verdion:
 	tag8.1
 added SC-02 radar protocol version
+
+verdion:
+	tag8.2
+added pwm ID configuration function
 	
