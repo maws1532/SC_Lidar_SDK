@@ -635,6 +635,7 @@ void C3iroboticsLidar::PwmInit(PWMPolarityState state)
 {
     int num = GetDeviceNodeID();
     std::string pwmid = GetDevicepwmID(); 
+    std::string pwmnum = GetDevicepwmNum();
     std::string str = "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+ pwmid;
     std::string str_export = "/sys/class/pwm/pwmchip" + std::to_string(num) + "/export";
     std::string str_period =  "/sys/class/pwm/pwmchip" + std::to_string(num)+"/"+ pwmid + "/period";
@@ -644,7 +645,7 @@ void C3iroboticsLidar::PwmInit(PWMPolarityState state)
     
     if(access(str.c_str(), 0) == -1)
    {
-       PwmWriteData(str_export.c_str(), (int64_t)0);
+       PwmWriteData(str_export.c_str(), pwmnum.c_str());
        usleep(20);
    }
     PwmWriteData(str_period.c_str(), 50000);
@@ -730,6 +731,20 @@ std::string C3iroboticsLidar::GetDevicepwmID()
     std::string pwm;
     pwm = "pwm" + std::to_string(Pwm_num);
     return pwm;
+}
+/***********************************************************************************
+Function:     GetDevicepwmNum
+Description:  Get  Device  pwm  Num
+Input:        None
+Output:       None
+Return:       None
+Others:       None
+***********************************************************************************/
+std::string C3iroboticsLidar::GetDevicepwmNum()
+{
+    std::string Num;
+    Num = std::to_string(Pwm_num);
+    return Num;
 }
 /***********************************************************************************
 Function:     SetDevicepwmID

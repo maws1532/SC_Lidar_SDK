@@ -172,6 +172,9 @@ namespace everest
                 /*Get Device Node number*/
                 u8 GetDeviceNodeID();
 
+                /*Get Get Device pwm Num*/
+                std::string GetDevicepwmNum();
+                
                 /*Get Device pwmID*/
                 std::string GetDevicepwmID();
 
